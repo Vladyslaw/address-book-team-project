@@ -94,7 +94,8 @@ class Bot:
 
     @input_error
     def write_note(self, user_input):
-        note = user_input.replace('write', '').replace('note', '').lstrip()
+        splitted_input = user_input.split()
+        note = " ".join(splitted_input[2:])
         return self.notes.add_note(note)
              
     def exit(self, user_input):
