@@ -79,7 +79,7 @@ class Record:
                 return i
         return None
     
-    def days_to_birthday(self):
+    def days_to_birthday(self, birthday):
         if self.birthday:
             today = date.today()
             next_birthday = datetime.strptime(str(self.birthday), '%d.%m.%Y')
