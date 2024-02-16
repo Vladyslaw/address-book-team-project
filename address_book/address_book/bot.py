@@ -1,6 +1,7 @@
 import sys
 import pickle
 from classes import AddressBook, Record
+from notes import Notes
 
 commands_help = {
         'hello': 'Greetings in return',
@@ -20,6 +21,7 @@ class Bot:
     def __init__(self) -> None:
         self.file = 'contacts.json'
         self.book = AddressBook()
+        self.notes = Notes()
         try:
             with open(self.file, 'rb') as f:
                 contacts = pickle.load(f)
@@ -88,6 +90,11 @@ class Bot:
     def phone(self, user_input):
         name = user_input.replace('phone', '')
         return self.book.find(name)
+
+    @input_error
+    def add_note(self, user_input):
+        note = user_input.replace('add', '').replace('note', '')
+        return self.notes.add_note(note)
              
     def exit(self, user_input):
         with open(self.file, 'wb') as f:
@@ -107,6 +114,7 @@ class Bot:
     commands = {
             'hello': greeting,
             'add': add,
+            'add note': add_note,
             'change': change,
             'phone': phone,
             'show all': show_all,
