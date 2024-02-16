@@ -1,6 +1,6 @@
 import sys
 import pickle
-from classes import AddressBook, Record
+from .classes import AddressBook, Record
 
 commands_help = {
         'hello': 'Greetings in return',
