@@ -1,6 +1,8 @@
 import sys
 import pickle
 from .classes import AddressBook, Record
+from .notes import Notes
+
 
 commands_help = {
         'hello': 'Greetings in return',
@@ -9,6 +11,7 @@ commands_help = {
         'phone': 'Bot displays the phone number for the given name',
         'show all': 'Bot displays all saved contacts',
         'search': 'Bot displays the contact at your request',
+        'write note': 'Bot writes a new note.',
         'good bye, close, exit': 'Bot completes its work',
         'help': 'Bot shows help info'}
 
@@ -20,6 +23,7 @@ class Bot:
     def __init__(self) -> None:
         self.file = 'contacts.json'
         self.book = AddressBook()
+        self.notes = Notes()
         try:
             with open(self.file, 'rb') as f:
                 contacts = pickle.load(f)
@@ -45,7 +49,7 @@ class Bot:
 
     @input_error
     def add(self, user_input):
-        name, phone = user_input.replace('add', '').split()
+        name, phone = user_input.lower().replace('add', '').split()
         record = Record(name, phone)
 
         for rec in self.book.data.values():
@@ -68,7 +72,7 @@ class Bot:
 
     @input_error
     def change(self, user_input):
-        name, phone, new_phone = user_input.replace('change', '').split()
+        name, phone, new_phone = user_input.lower().replace('change', '').split()
 
         for record in self.book.data.values():
             if name in record.name.value.lower():
@@ -79,15 +83,21 @@ class Bot:
             
     @input_error
     def delete(self, user_input):
-        name = user_input.replace('delete', '')
+        name = user_input.lower().replace('delete', '')
         for record in self.book.data.values():
             if name == record.name.value.lower():         
                 return self.book.delete(record)
 
     @input_error
     def phone(self, user_input):
-        name = user_input.replace('phone', '')
+        name = user_input.lower().replace('phone', '')
         return self.book.find(name)
+
+    @input_error
+    def write_note(self, user_input):
+        splitted_input = user_input.split()
+        note = " ".join(splitted_input[2:])
+        return self.notes.add_note(note)
              
     def exit(self, user_input):
         with open(self.file, 'wb') as f:
@@ -96,7 +106,7 @@ class Bot:
         sys.exit()
 
     def search(self, user_input):
-        text = user_input.replace('search', '')
+        text = user_input.lower().replace('search', '')
         s_text = text.strip().lower()
         result = []
         for record in self.book.data.values():
@@ -107,6 +117,7 @@ class Bot:
     commands = {
             'hello': greeting,
             'add': add,
+            'write note': write_note,
             'change': change,
             'phone': phone,
             'show all': show_all,
@@ -121,12 +132,12 @@ class Bot:
     @input_error
     def get_handler(self, user_input):
         for action in self.commands:
-            if user_input.startswith(action):
+            if user_input.lower().startswith(action):
                 return self.commands[action]
 
     def run(self):
         while True:
-            user_input = input('>>').lower()
+            user_input = input('>>')
             handler = self.get_handler(user_input)
             if handler == None:
                 print('Unknown command! Please, enter command from the list below:\n')
