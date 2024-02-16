@@ -49,8 +49,11 @@ class Bot:
 
     @input_error
     def add(self, user_input):
-        name, phone = user_input.lower().replace('add', '').split()
-        record = Record(name, phone)
+        line = user_input.lower().replace('add', '').split()
+        name = line[0] if len(line) > 0 else None
+        phone = line[1] if len(line) > 1 else None
+        birthday = line[2] if len(line) > 2 else None
+        record = Record(name, phone, birthday)
 
         for rec in self.book.data.values():
             if name in rec.name.value.lower():
@@ -113,6 +116,22 @@ class Bot:
             if s_text in record.name.value.lower() + ' '.join([phone.value for phone in record.phones]):
                 result.append(str(record))
         return result
+    
+    def birthday(self, user_input):
+        s = '\n'
+        indx = user_input.replace('birthday', '')
+
+        if not indx:
+            indx = 7
+        
+        for record in self.book.data.values():
+            try:
+                if record.birthday.value:
+                    if record.days_to_birthday(record.birthday) < int(indx):
+                        s += '{:^15} {:^15}\n'.format(record.name.value, record.birthday.value)
+            except AttributeError:
+                continue
+        return s
 
     commands = {
             'hello': greeting,
@@ -126,7 +145,8 @@ class Bot:
             'exit': exit,
             'search': search,
             'delete': delete,
-            'help': help
+            'help': help,
+            'birthday': birthday
             }
 
     @input_error
