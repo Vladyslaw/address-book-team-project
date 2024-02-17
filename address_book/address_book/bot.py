@@ -1,4 +1,5 @@
 import sys
+import os
 import pickle
 from classes import AddressBook, Record
 from notes import Notes
@@ -119,7 +120,11 @@ class Bot:
         return result
     
     def folder_sort(self, user_input):
-        ...
+        target_folder_path = user_input.replace('sort folder ', '')
+        if not os.path.exists(target_folder_path):
+            return 'folder not found'
+    
+        return sort_folder(target_folder_path, display_analytics=True)
     
     def birthday(self, user_input):
         s = '\n'
