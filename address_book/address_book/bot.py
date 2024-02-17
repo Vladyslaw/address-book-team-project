@@ -11,7 +11,7 @@ commands_help = {
         'phone': 'Bot displays the phone number for the given name',
         'show all': 'Bot displays all saved contacts',
         'search': 'Bot displays the contact at your request',
-        'write note': 'Bot writes a new note.',
+        'write note': 'Bot asks to input title and text',
         'good bye, close, exit': 'Bot completes its work',
         'help': 'Bot shows help info'}
 
@@ -98,9 +98,13 @@ class Bot:
 
     @input_error
     def write_note(self, user_input):
-        splitted_input = user_input.split()
-        note = " ".join(splitted_input[2:])
-        return self.notes.add_note(note)
+        if user_input != "write note":
+            raise ValueError
+        
+        title = input('Please, input the title. You can leave this field empty.\n')
+        text = input('Please, input the text. You can leave this field empty.\n')
+
+        return self.notes.add_note(title, text)
              
     def exit(self, user_input):
         with open(self.file, 'wb') as f:
@@ -136,7 +140,7 @@ class Bot:
     commands = {
             'hello': greeting,
             'add': add,
-            'write note': write_note,
+            'write': write_note,
             'change': change,
             'phone': phone,
             'show all': show_all,
