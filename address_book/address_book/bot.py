@@ -10,7 +10,7 @@ commands_help = {
         'change': 'Bot saves the new phone number of the existing contact',
         'phone': 'Bot displays the phone number for the given name',
         'show all': 'Bot displays all saved contacts',
-        'search': 'Bot displays the contact at your request',
+        'search phone': 'Bot displays the contact at your request',
         'write note': 'Bot asks to input title and text',
         'good bye, close, exit': 'Bot completes its work',
         'help': 'Bot shows help info'}
@@ -25,9 +25,8 @@ class Bot:
         self.book = AddressBook()
         self.notes = Notes()
         try:
-            with open(self.file, 'rb') as f:
-                contacts = pickle.load(f)
-                self.book.data = contacts
+            with open(self.file, 'rb') as file:
+                self.book.data = pickle.load(file)
         except:
             print('New AddressBook')
 
@@ -112,15 +111,15 @@ class Bot:
         print('Good Bye')
         sys.exit()
 
-    def search(self, user_input):
-        text = user_input.replace('search', '')
+    def search_phone(self, user_input):
+        text = user_input.replace('search phone', '')
         s_text = text.strip().lower()
         result = []
         for record in self.book.data.values():
             if s_text in record.name.value.lower() + ' '.join([phone.value for phone in record.phones]):
                 result.append(str(record))
         return result
-    
+
     def birthday(self, user_input):
         s = '\n'
         indx = user_input.replace('birthday', '')
@@ -137,20 +136,28 @@ class Bot:
                 continue
         return s
 
+    @input_error
+    def search_notes(self, user_input: str) -> str:
+        command_body = user_input.replace('search notes', '')
+        command_body = command_body.strip().lower()
+        
+        return self.notes.find_notes(command_body).get_notes()
+
     commands = {
             'hello': greeting,
             'add': add,
-            'write': write_note,
+            'write note': write_note,
             'change': change,
             'phone': phone,
             'show all': show_all,
             'good bye': exit,
             'close': exit,
             'exit': exit,
-            'search': search,
+            'search phone': search_phone,
             'delete': delete,
             'help': help,
-            'birthday': birthday
+            'birthday': birthday,
+            'search notes': search_notes
             }
 
     @input_error
