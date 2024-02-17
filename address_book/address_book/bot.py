@@ -2,6 +2,7 @@ import sys
 import pickle
 from classes import AddressBook, Record
 from notes import Notes
+from folder_sorter import sort_folder
 
 
 commands_help = {
@@ -117,6 +118,9 @@ class Bot:
                 result.append(str(record))
         return result
     
+    def folder_sort(self, user_input):
+        ...
+    
     def birthday(self, user_input):
         s = '\n'
         indx = user_input.replace('birthday', '')
@@ -144,6 +148,7 @@ class Bot:
             'close': exit,
             'exit': exit,
             'search': search,
+            'sort folder': folder_sort,
             'delete': delete,
             'help': help,
             'birthday': birthday
