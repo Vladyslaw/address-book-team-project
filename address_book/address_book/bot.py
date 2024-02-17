@@ -49,7 +49,7 @@ class Bot:
 
     @input_error
     def add(self, user_input):
-        line = user_input.lower().replace('add', '').split()
+        line = user_input.replace('add', '').split()
         name = line[0] if len(line) > 0 else None
         phone = line[1] if len(line) > 1 else None
         birthday = line[2] if len(line) > 2 else None
@@ -75,7 +75,7 @@ class Bot:
 
     @input_error
     def change(self, user_input):
-        name, phone, new_phone = user_input.lower().replace('change', '').split()
+        name, phone, new_phone = user_input.replace('change', '').split()
 
         for record in self.book.data.values():
             if name in record.name.value.lower():
@@ -86,14 +86,14 @@ class Bot:
             
     @input_error
     def delete(self, user_input):
-        name = user_input.lower().replace('delete', '')
+        name = user_input.replace('delete', '')
         for record in self.book.data.values():
             if name == record.name.value.lower():         
                 return self.book.delete(record)
 
     @input_error
     def phone(self, user_input):
-        name = user_input.lower().replace('phone', '')
+        name = user_input.replace('phone', '')
         return self.book.find(name)
 
     @input_error
@@ -113,7 +113,7 @@ class Bot:
         sys.exit()
 
     def search(self, user_input):
-        text = user_input.lower().replace('search', '')
+        text = user_input.replace('search', '')
         s_text = text.strip().lower()
         result = []
         for record in self.book.data.values():
@@ -156,12 +156,12 @@ class Bot:
     @input_error
     def get_handler(self, user_input):
         for action in self.commands:
-            if user_input.lower().startswith(action):
+            if user_input.startswith(action):
                 return self.commands[action]
 
     def run(self):
         while True:
-            user_input = input('>>')
+            user_input = input('>>').lower()
             handler = self.get_handler(user_input)
             if handler == None:
                 print('Unknown command! Please, enter command from the list below:\n')
