@@ -1,7 +1,7 @@
 import sys
 import pickle
-from classes import AddressBook, Record
-
+from classes import AddressBook, Record, Phone, Birthday, Email
+import re
 commands_help = {
         'hello': 'Greetings in return',
         'add': 'Bot saves the new contact(can\'t be less than 10 digit)',
@@ -15,6 +15,33 @@ commands_help = {
 help = ''
 for key, value in commands_help.items():
     help += '{:<25} | {:<70}\n'.format(key, value)
+
+
+def set_name():
+    customer_input = input('    Input name: ')
+    name = customer_input
+    return name
+
+
+def set_phone():
+    customer_input = input('    Input phone: ')
+    phone = Phone(customer_input)
+    return str(phone)
+
+
+def set_birthday():
+    customer_input = input('    Input date of birthday or pass: ')
+    birthday = Birthday(customer_input) if customer_input != 'pass' else None
+    if birthday:
+        return str(birthday)
+    return birthday
+
+def set_email():
+    customer_input = input('    Input email: ')
+    email = Email(customer_input) if customer_input != 'pass' else None
+    if email:
+        return str(email)
+    return email
 
 class Bot:
     def __init__(self) -> None:
@@ -45,15 +72,77 @@ class Bot:
 
     @input_error
     def add(self, user_input):
-        name, phone = user_input.replace('add', '').split()
-        record = Record(name, phone)
+        # line = user_input.lower().replace('add', '').split()
+        # name = line[0] if len(line) > 0 else None
+        # phone = line[1] if len(line) > 1 else None
+        # birthday = line[2] if len(line) > 2 else None
+        # email = line[3] if len(line) > 3 else None
+        # record = Record(name, phone, birthday, email)
+       
+        # name, phone, birthday, email = user_input.replace('add', '').split()
+        # record = Record(name, phone, birthday, email)
 
-        for rec in self.book.data.values():
-            if name in rec.name.value.lower():
-                new_record = rec
-                new_record.add_phone(phone)
-                self.book.add_record(new_record)
+        # for rec in self.book.data.values():
+        #     if name in rec.name.value.lower():
+        #         new_record = rec
+        #         new_record.add_phone(phone)
+        #         self.book.add_record(new_record)
+        # while True:
+        #     customer_input = input('Input name: ')
+        #     name = customer_input
+        #     if name:
+        #         customer_input = input('input phone number: ')
+        #         phone = customer_input
+        #     if phone:
+        #         customer_input = input('Input date of birthday or pass: ')
+        #         birthday = customer_input if customer_input != 'pass' else None
+        #     if birthday or birthday is None:
+        #         pattern = '[a-zA-Z]{1}[a-zA-Z0-9._]{1,}@[a-zA-Z]+\.[a-zA-Z]{2,}'
+        #         customer_input = input('Input a user email or pass: ')
+        #         matching = re.fullmatch(pattern, customer_input)
+        #         if matching and customer_input != 'pass':
+        #             email = customer_input if customer_input != 'pass' else None
+        #         customer_input = input('Input a user email or pass: ')                  
+        #     if email or email is None:
+        #         break
 
+        while True:
+            name = set_name()
+            if name:
+                try:
+                    phone = set_phone()
+                except ValueError:
+                    print('    Incorrect phone number, try again with 10 digit')
+                    phone = set_phone()
+            if phone:
+                try:
+                    birthday = set_birthday()
+                except ValueError:
+                    print('    Incorrect birthday format, try again with DD.MM.YYYY')
+                    birthday = set_birthday()
+            if birthday or birthday is None:
+                try:
+                    email = set_email()
+                except ValueError:
+                    print(' Incorrect email fotmat, try again with name@test.com')
+                    email = set_email()
+            if email or email is None:
+                break
+        record = Record(name, phone, birthday, email)
+
+        line = user_input.replace('add', '').split()
+        name = line[0] if len(line) > 0 else None
+        phone = line[1] if len(line) > 1 else None
+        birthday = line[2] if len(line) > 2 else None
+        record = Record(name, phone, birthday, email)
+
+        # for rec in self.book.data.values():
+        #     if name in rec.name.value.lower():
+        #         new_record = rec
+        #         new_record.add_phone(phone)
+        #         self.book.add_record(new_record)
+
+        record = Record(name, phone, birthday, email)
         self.book.add_record(record)
         return 'New contact added!'
     
@@ -115,7 +204,7 @@ class Bot:
             'exit': exit,
             'search': search,
             'delete': delete,
-            'help': help
+            'help': help         
             }
 
     @input_error
