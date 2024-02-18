@@ -1,16 +1,22 @@
 import sys
 import pickle
-from classes import AddressBook, Record, Phone, Birthday, Email
 import re
+from classes import AddressBook, Record, Phone, Birthday, Email
+from notes import Notes
+
+
 commands_help = {
         'hello': 'Greetings in return',
         'add': 'Bot saves the new contact(can\'t be less than 10 digit)',
         'change': 'Bot saves the new phone number of the existing contact',
         'phone': 'Bot displays the phone number for the given name',
         'show all': 'Bot displays all saved contacts',
-        'search': 'Bot displays the contact at your request',
+        'search phone': 'Bot displays the contact at your request',
+        'write note': 'Bot asks to input title and text',
         'good bye, close, exit': 'Bot completes its work',
-        'help': 'Bot shows help info'}
+        'help': 'Bot shows help info',
+        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)'
+        }
 
 help = ''
 for key, value in commands_help.items():
@@ -43,14 +49,20 @@ def set_email():
         return str(email)
     return email
 
+def set_address():
+    customer_input = input('    Input address or pass: ')
+    address = customer_input if customer_input != 'pass' else None
+    return address
+
+  
 class Bot:
     def __init__(self) -> None:
         self.file = 'contacts.json'
         self.book = AddressBook()
+        self.notes = Notes()
         try:
-            with open(self.file, 'rb') as f:
-                contacts = pickle.load(f)
-                self.book.data = contacts
+            with open(self.file, 'rb') as file:
+                self.book.data = pickle.load(file)
         except:
             print('New AddressBook')
 
@@ -72,40 +84,6 @@ class Bot:
 
     @input_error
     def add(self, user_input):
-        # line = user_input.lower().replace('add', '').split()
-        # name = line[0] if len(line) > 0 else None
-        # phone = line[1] if len(line) > 1 else None
-        # birthday = line[2] if len(line) > 2 else None
-        # email = line[3] if len(line) > 3 else None
-        # record = Record(name, phone, birthday, email)
-       
-        # name, phone, birthday, email = user_input.replace('add', '').split()
-        # record = Record(name, phone, birthday, email)
-
-        # for rec in self.book.data.values():
-        #     if name in rec.name.value.lower():
-        #         new_record = rec
-        #         new_record.add_phone(phone)
-        #         self.book.add_record(new_record)
-        # while True:
-        #     customer_input = input('Input name: ')
-        #     name = customer_input
-        #     if name:
-        #         customer_input = input('input phone number: ')
-        #         phone = customer_input
-        #     if phone:
-        #         customer_input = input('Input date of birthday or pass: ')
-        #         birthday = customer_input if customer_input != 'pass' else None
-        #     if birthday or birthday is None:
-        #         pattern = '[a-zA-Z]{1}[a-zA-Z0-9._]{1,}@[a-zA-Z]+\.[a-zA-Z]{2,}'
-        #         customer_input = input('Input a user email or pass: ')
-        #         matching = re.fullmatch(pattern, customer_input)
-        #         if matching and customer_input != 'pass':
-        #             email = customer_input if customer_input != 'pass' else None
-        #         customer_input = input('Input a user email or pass: ')                  
-        #     if email or email is None:
-        #         break
-
         while True:
             name = set_name()
             if name:
@@ -128,21 +106,14 @@ class Bot:
                     email = set_email()
             if email or email is None:
                 break
+        
         record = Record(name, phone, birthday, email)
 
-        line = user_input.replace('add', '').split()
-        name = line[0] if len(line) > 0 else None
-        phone = line[1] if len(line) > 1 else None
-        birthday = line[2] if len(line) > 2 else None
-        record = Record(name, phone, birthday, email)
+                '''address = set_address()
+            if address or address is None:
+                break
+        record = Record(name, phone, birthday, address)'''
 
-        # for rec in self.book.data.values():
-        #     if name in rec.name.value.lower():
-        #         new_record = rec
-        #         new_record.add_phone(phone)
-        #         self.book.add_record(new_record)
-
-        record = Record(name, phone, birthday, email)
         self.book.add_record(record)
         return 'New contact added!'
     
@@ -177,6 +148,16 @@ class Bot:
     def phone(self, user_input):
         name = user_input.replace('phone', '')
         return self.book.find(name)
+
+    @input_error
+    def write_note(self, user_input):
+        if user_input != "write note":
+            raise ValueError
+        
+        title = input('Please, input the title. You can leave this field empty.\n')
+        text = input('Please, input the text. You can leave this field empty.\n')
+
+        return self.notes.add_note(title, text)
              
     def exit(self, user_input):
         with open(self.file, 'wb') as f:
@@ -184,8 +165,8 @@ class Bot:
         print('Good Bye')
         sys.exit()
 
-    def search(self, user_input):
-        text = user_input.replace('search', '')
+    def search_phone(self, user_input):
+        text = user_input.replace('search phone', '')
         s_text = text.strip().lower()
         result = []
         for record in self.book.data.values():
@@ -193,18 +174,44 @@ class Bot:
                 result.append(str(record))
         return result
 
+    def birthday(self, user_input):
+        s = '\n'
+        indx = user_input.replace('birthday', '')
+
+        if not indx:
+            indx = 7
+        
+        for record in self.book.data.values():
+            try:
+                if record.birthday.value:
+                    if record.days_to_birthday(record.birthday) < int(indx):
+                        s += '{:^15} {:^15}\n'.format(record.name.value, record.birthday.value)
+            except AttributeError:
+                continue
+        return s if s != '\n' else '\nNobody has selebrate birthday on this term\n'
+
+    @input_error
+    def search_notes(self, user_input: str) -> str:
+        command_body = user_input.replace('search notes', '')
+        command_body = command_body.strip().lower()
+        
+        return self.notes.find_notes(command_body).get_notes()
+
     commands = {
             'hello': greeting,
             'add': add,
+            'write note': write_note,
             'change': change,
             'phone': phone,
             'show all': show_all,
             'good bye': exit,
             'close': exit,
             'exit': exit,
-            'search': search,
+            'search phone': search_phone,
             'delete': delete,
-            'help': help         
+            'help': help,
+            'birthday': birthday,
+            'search notes': search_notes
             }
 
     @input_error

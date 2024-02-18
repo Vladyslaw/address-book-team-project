@@ -35,7 +35,10 @@ class Phone(Field):
     def is_valid(self, value):
         return value.isdigit() and len(value) == 10
     
-            
+class Address(Field):
+    def __str__(self):
+        return str(self.value)
+
 class Birthday(Field):
     # реалізація класу
     def is_valid(self, value):
@@ -63,13 +66,11 @@ class Record:
             self.phones.append(Phone(phone))
         self.birthday = Birthday(birthday) if birthday else 'Not set'
         self.email = Email(email) if email else 'Not set'
-
     
     def add_phone(self, phone: str):
         phone = Phone(phone)
         if phone not in self.phones:
             self.phones.append(phone)
-
 
     def remove_phone(self, phone: str):
         for i in self.phones:
@@ -90,7 +91,7 @@ class Record:
                 return i
         return None
     
-    def days_to_birthday(self):
+    def days_to_birthday(self, birthday):
         if self.birthday:
             today = date.today()
             next_birthday = datetime.strptime(str(self.birthday), '%d.%m.%Y')
