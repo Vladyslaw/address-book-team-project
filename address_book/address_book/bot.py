@@ -102,18 +102,13 @@ class Bot:
                 try:
                     email = set_email()
                 except ValueError:
-                    print(' Incorrect email fotmat, try again with name@test.com')
+                    print('    Incorrect email fotmat, try again with name@test.com')
                     email = set_email()
             if email or email is None:
-                break
-        
-        record = Record(name, phone, birthday, email)
-
-        '''address = set_address()
+                address = set_address()
             if address or address is None:
                 break
-        record = Record(name, phone, birthday, address)'''
-
+        record = Record(name, phone, birthday, email, address)
         self.book.add_record(record)
         return 'New contact added!'
     
