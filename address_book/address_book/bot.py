@@ -43,7 +43,7 @@ def set_birthday():
     return birthday
 
 def set_email():
-    customer_input = input('    Input email: ')
+    customer_input = input('    Input email or pass: ')
     email = Email(customer_input) if customer_input != 'pass' else None
     if email:
         return str(email)

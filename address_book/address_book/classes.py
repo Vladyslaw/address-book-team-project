@@ -59,13 +59,14 @@ class Email(Field):
 
 class Record:
     # реалізація класу
-    def __init__(self, name, phone=None, birthday=None, email=None):
+    def __init__(self, name, phone=None, birthday=None, email=None, address=None):
         self.name = Name(name)
         self.phones = []
         if phone:
             self.phones.append(Phone(phone))
         self.birthday = Birthday(birthday) if birthday else 'Not set'
         self.email = Email(email) if email else 'Not set'
+        self.address = Address(address) if address else 'Not set'
     
     def add_phone(self, phone: str):
         phone = Phone(phone)
@@ -105,14 +106,8 @@ class Record:
         return None
         
     def __str__(self):
-        if self.birthday:
-            if self.email:
-                return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday}, email: {self.email}"
-            return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday}"
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday}, email: {self.email}, address: {self.address}"
 
-        elif self.email:
-            return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, email: {self.email}"
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
         # info = [f"Contact name: {self.name.value}", f"phones: {'; '.join(p.value for p in self.phones)}"]
         # if self.birthday:
         #     info.append(f"birthday: {self.birthday.value}")
