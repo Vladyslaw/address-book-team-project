@@ -35,7 +35,10 @@ class Phone(Field):
     def is_valid(self, value):
         return value.isdigit() and len(value) == 10
     
-            
+class Address(Field):
+    def __str__(self):
+        return str(self.value)
+
 class Birthday(Field):
     # реалізація класу
     def is_valid(self, value):
@@ -48,12 +51,13 @@ class Birthday(Field):
 
 class Record:
     # реалізація класу
-    def __init__(self, name, phone=None, birthday=None):
+    def __init__(self, name, phone=None, birthday=None, address=None):
         self.name = Name(name)
         self.phones = []
         if phone:
             self.phones.append(Phone(phone))
-        self.birthday = Birthday(birthday) if birthday else None
+        self.birthday = Birthday(birthday) if birthday else 'Not set'
+        self.address = Address(address) if address else 'Not set'
     
     def add_phone(self, phone: str):
         phone = Phone(phone)
@@ -93,9 +97,8 @@ class Record:
         return None
         
     def __str__(self):
-        if self.birthday:
-            return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday.value}"
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday}, address: {self.address}"
+       
 
 
 class AddressBook(UserDict):

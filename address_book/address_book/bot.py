@@ -1,6 +1,6 @@
 import sys
 import pickle
-from classes import AddressBook, Record
+from classes import AddressBook, Record, Phone, Birthday
 from notes import Notes
 
 
@@ -20,6 +20,32 @@ commands_help = {
 help = ''
 for key, value in commands_help.items():
     help += '{:<25} | {:<70}\n'.format(key, value)
+
+
+def set_name():
+    customer_input = input('    Input name: ')
+    name = customer_input
+    return name
+
+
+def set_phone():
+    customer_input = input('    Input phone: ')
+    phone = Phone(customer_input)
+    return str(phone)
+
+
+def set_birthday():
+    customer_input = input('    Input date of birthday or pass: ')
+    birthday = Birthday(customer_input) if customer_input != 'pass' else None
+    if birthday:
+        return str(birthday)
+    return birthday
+
+
+def set_address():
+    customer_input = input('    Input address or pass: ')
+    address = customer_input if customer_input != 'pass' else None
+    return address
 
 class Bot:
     def __init__(self) -> None:
@@ -50,17 +76,25 @@ class Bot:
 
     @input_error
     def add(self, user_input):
-        line = user_input.replace('add', '').split()
-        name = line[0] if len(line) > 0 else None
-        phone = line[1] if len(line) > 1 else None
-        birthday = line[2] if len(line) > 2 else None
-        record = Record(name, phone, birthday)
-
-        for rec in self.book.data.values():
-            if name in rec.name.value.lower():
-                new_record = rec
-                new_record.add_phone(phone)
-                self.book.add_record(new_record)
+        while True:
+            name = set_name()
+            if name:
+                try:
+                    phone = set_phone()
+                except ValueError:
+                    print('    Incorrect phone number, try again with 10 digit')
+                    phone = set_phone()
+            if phone:
+                try:
+                    birthday = set_birthday()
+                except ValueError:
+                    print('    Incorrect birthday format, try again with DD.MM.YYYY')
+                    birthday = set_birthday()
+            if birthday or birthday is None:
+                address = set_address()
+            if address or address is None:
+                break
+        record = Record(name, phone, birthday, address)
 
         self.book.add_record(record)
         return 'New contact added!'
