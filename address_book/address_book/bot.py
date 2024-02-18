@@ -16,7 +16,8 @@ commands_help = {
         'write note': 'Bot asks to input title and text',
         'good bye, close, exit': 'Bot completes its work',
         'help': 'Bot shows help info',
-        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)'
+        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)',
+        'sort folder': 'Bot sorts the inqired folder'
         }
 
 help = ''
@@ -186,4 +187,4 @@ class Bot:
                 print('Unknown command! Please, enter command from the list below:\n')
                 handler = self.get_handler('help') 
             result = handler(self, user_input)
-            print(result)
+            print(result or '')
