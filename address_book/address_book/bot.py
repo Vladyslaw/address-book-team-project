@@ -1,6 +1,7 @@
 import sys
 import pickle
-from classes import AddressBook, Record, Phone, Birthday
+import re
+from classes import AddressBook, Record, Phone, Birthday, Email
 from notes import Notes
 
 
@@ -41,12 +42,19 @@ def set_birthday():
         return str(birthday)
     return birthday
 
+def set_email():
+    customer_input = input('    Input email: ')
+    email = Email(customer_input) if customer_input != 'pass' else None
+    if email:
+        return str(email)
+    return email
 
 def set_address():
     customer_input = input('    Input address or pass: ')
     address = customer_input if customer_input != 'pass' else None
     return address
 
+  
 class Bot:
     def __init__(self) -> None:
         self.file = 'contacts.json'
@@ -91,10 +99,20 @@ class Bot:
                     print('    Incorrect birthday format, try again with DD.MM.YYYY')
                     birthday = set_birthday()
             if birthday or birthday is None:
-                address = set_address()
+                try:
+                    email = set_email()
+                except ValueError:
+                    print(' Incorrect email fotmat, try again with name@test.com')
+                    email = set_email()
+            if email or email is None:
+                break
+        
+        record = Record(name, phone, birthday, email)
+
+                '''address = set_address()
             if address or address is None:
                 break
-        record = Record(name, phone, birthday, address)
+        record = Record(name, phone, birthday, address)'''
 
         self.book.add_record(record)
         return 'New contact added!'
