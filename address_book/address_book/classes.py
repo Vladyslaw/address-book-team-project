@@ -1,6 +1,6 @@
 from collections import UserDict
 from datetime import datetime, date
-
+import re
 
 class Field:
     def __init__(self, value):
@@ -35,7 +35,10 @@ class Phone(Field):
     def is_valid(self, value):
         return value.isdigit() and len(value) == 10
     
-            
+class Address(Field):
+    def __str__(self):
+        return str(self.value)
+
 class Birthday(Field):
     # реалізація класу
     def is_valid(self, value):
@@ -46,14 +49,23 @@ class Birthday(Field):
             return False
 
 
+class Email(Field):
+    def is_valid(self, value):
+        if value:
+            return re.fullmatch(r'([a-zA-Z]{1}[a-zA-Z0-9._]{1,}@[a-zA-Z]+\.[a-zA-Z]{2,})', value)
+        return False
+            
+        
+
 class Record:
     # реалізація класу
-    def __init__(self, name, phone=None, birthday=None):
+    def __init__(self, name, phone=None, birthday=None, email=None):
         self.name = Name(name)
         self.phones = []
         if phone:
             self.phones.append(Phone(phone))
-        self.birthday = Birthday(birthday) if birthday else None
+        self.birthday = Birthday(birthday) if birthday else 'Not set'
+        self.email = Email(email) if email else 'Not set'
     
     def add_phone(self, phone: str):
         phone = Phone(phone)
@@ -94,9 +106,19 @@ class Record:
         
     def __str__(self):
         if self.birthday:
-            return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday.value}"
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+            if self.email:
+                return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday}, email: {self.email}"
+            return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday}"
 
+        elif self.email:
+            return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, email: {self.email}"
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+        # info = [f"Contact name: {self.name.value}", f"phones: {'; '.join(p.value for p in self.phones)}"]
+        # if self.birthday:
+        #     info.append(f"birthday: {self.birthday.value}")
+        # if self.email:
+        #     info.append(f"email: {self.email.value}")
+        # return ', '.join(info)
 
 class AddressBook(UserDict):
     # реалізація класу
@@ -124,3 +146,5 @@ class AddressBook(UserDict):
 
     def __str__(self) -> str:
         return '\n'.join(str(r) for r in self.data.values())
+    
+
