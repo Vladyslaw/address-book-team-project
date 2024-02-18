@@ -1,4 +1,5 @@
 from collections import UserDict
+from collections import defaultdict
 
 
 class Item:
@@ -9,8 +10,39 @@ class Item:
     def __str__(self):
         return f"{self.title} {self.text}"
 
+class Tag:
+    def __init__(self, name):
+        self.name = name
+    
+    def __eq__(self, tag):
+        if type(tag) != Tag:
+            return False
+        
+        return self.name == tag.name
+
+class Tags:
+    def __init__(self):
+        self.tags = UserDict()
+    
+    def add_tag(self, name):
+        new_tag = Tag(name)
+        if new_tag in self.tags.data.values():
+            return f'Tag with name {name} already exists!'
+        
+        index = len(self.tags) + 1 if len(self.tags) > 0 else 1
+        self.tags[index] = new_tag
+        return f'Tag with name {name} succesfully created!'
+    
+    def get_tags(self):
+        tags = '{:<30}\n'.format('Tag')
+        for tag_name in self.tags.data.values():
+            tags += '{:<30}\n'.format(tag_name)
+        return tags
 
 class Notes(UserDict):
+
+    def __init__(self):
+        self.tags = defaultdict(list)
 
     def add_note(self, title, text):
         idx = len(self.data)+1 if len(self.data) > 0 else 1
@@ -33,3 +65,13 @@ class Notes(UserDict):
                 notes_found.add_note(note.title, note.text)
         
         return notes_found
+
+    def add_tag(self, note_title=None, note_text=None):
+        pass
+
+
+if __name__ == '__main__':
+    tags = Tags()
+    print(tags.add_tag('tag1'))
+    print(tags.add_tag('tag2'))
+    print(tags.get_tags())

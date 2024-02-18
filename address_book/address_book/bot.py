@@ -109,7 +109,7 @@ class Bot:
         
         record = Record(name, phone, birthday, email)
 
-                '''address = set_address()
+        '''address = set_address()
             if address or address is None:
                 break
         record = Record(name, phone, birthday, address)'''
