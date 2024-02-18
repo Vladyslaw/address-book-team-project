@@ -13,7 +13,9 @@ commands_help = {
         'search phone': 'Bot displays the contact at your request',
         'write note': 'Bot asks to input title and text',
         'good bye, close, exit': 'Bot completes its work',
-        'help': 'Bot shows help info'}
+        'help': 'Bot shows help info',
+        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)'
+        }
 
 help = ''
 for key, value in commands_help.items():
@@ -134,7 +136,7 @@ class Bot:
                         s += '{:^15} {:^15}\n'.format(record.name.value, record.birthday.value)
             except AttributeError:
                 continue
-        return s
+        return s if s != '\n' else '\nNobody has selebrate birthday on this term\n'
 
     @input_error
     def search_notes(self, user_input: str) -> str:
