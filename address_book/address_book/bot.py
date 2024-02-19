@@ -154,8 +154,8 @@ class Bot:
         if user_input != "write note":
             raise ValueError
         
-        title = input('Please, input the title. You can leave this field empty.\n')
-        text = input('Please, input the text. You can leave this field empty.\n')
+        title = input('Please, input the title:\n')
+        text = input('Please, input the text. You can leave this field empty:\n')
 
         return self.notes.add_note(title, text)
              
@@ -197,6 +197,29 @@ class Bot:
         
         return self.notes.find_notes(command_body).get_notes()
 
+    @input_error
+    def create_tag(self, user_input: str) -> str:
+        command_body = user_input.replace('create tag', '')
+        command_body = command_body.strip()
+
+        return self.notes.tags.add_tag(command_body)
+    
+    @input_error
+    def link_tag(self, user_input: str) -> str:
+        if user_input != "link tag":
+            raise ValueError
+        
+        note_title = input('Please, input the title of note you want to add:\n')
+        tag_name = input('Please, input the name of tag you want to add:\n')
+
+        return self.notes.add_tag_for_note(tag_name, note_title)
+    
+    def show_notes(self, user_input: str) -> str:
+        if user_input != "show notes":
+            raise ValueError
+        
+        return self.notes.get_notes()
+
     commands = {
             'hello': greeting,
             'add': add,
@@ -211,7 +234,10 @@ class Bot:
             'delete': delete,
             'help': help,
             'birthday': birthday,
-            'search notes': search_notes
+            'search notes': search_notes,
+            'create tag': create_tag,
+            'link tag': link_tag,
+            'show notes': show_notes
             }
 
     @input_error
