@@ -1,9 +1,11 @@
 import sys
+import os
 import pickle
 from classes import AddressBook, Record, Phone, Birthday, Email
 from notes import Notes
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
+from folder_sorter import sort_folder
 
 function_names = ['hello', 'add', 'change', 'phone', 'show all', 'search phone', 'write note', 'help', 'exit']
 completer = WordCompleter(function_names)
@@ -16,9 +18,12 @@ commands_help = {
         'show all': 'Bot displays all saved contacts',
         'search phone': 'Bot displays the contact at your request',
         'write note': 'Bot asks to input title and text',
+        'edit note <title>': 'Bot edits note by title',
+        'remove note <title>': 'Bot removed note by title',
         'good bye, close, exit': 'Bot completes its work',
         'help': 'Bot shows help info',
-        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)'
+        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)',
+        'sort folder': 'Bot sorts the inqired folder'
         }
 
 help = ''
@@ -46,7 +51,7 @@ def set_birthday():
     return birthday
 
 def set_email():
-    customer_input = input('    Input email: ')
+    customer_input = input('    Input email or pass: ')
     email = Email(customer_input) if customer_input != 'pass' else None
     if email:
         return str(email)
@@ -60,14 +65,25 @@ def set_address():
   
 class Bot:
     def __init__(self) -> None:
-        self.file = 'contacts.json'
+        self.contacts_file = 'contacts.bin'
+        self.notes_file = 'notes.bin'
         self.book = AddressBook()
         self.notes = Notes()
+
+        self.load_file(self.contacts_file, self.book, "New AddressBook is created")
+        self.load_file(self.notes_file, self.notes, "New NotesBook is created")
+        
+
+    def load_file(self, file_name, entity, message):
         try:
-            with open(self.file, 'rb') as file:
-                self.book.data = pickle.load(file)
+            with open(file_name, 'rb') as file:
+                entity.data = pickle.load(file)
         except:
-            print('New AddressBook')
+            print(message)
+
+    def write_to_file(self, file_name, entity):
+        with open(file_name, 'wb') as f:
+            pickle.dump(entity.data, f)
 
     @staticmethod
     def input_error(func):
@@ -105,18 +121,13 @@ class Bot:
                 try:
                     email = set_email()
                 except ValueError:
-                    print(' Incorrect email fotmat, try again with name@test.com')
+                    print('    Incorrect email fotmat, try again with name@test.com')
                     email = set_email()
             if email or email is None:
-                break
-        
-        record = Record(name, phone, birthday, email)
-
-        '''address = set_address()
+                address = set_address()
             if address or address is None:
                 break
-        record = Record(name, phone, birthday, address)'''
-
+        record = Record(name, phone, birthday, email, address)
         self.book.add_record(record)
         return 'New contact added!'
     
@@ -161,10 +172,27 @@ class Bot:
         text = input('Please, input the text. You can leave this field empty:\n')
 
         return self.notes.add_note(title, text)
+    
+    @input_error
+    def remove_note(self, user_input):
+        note_to_remove = user_input.replace("remove note", '')
+
+        return self.notes.delete_note(note_to_remove)
+    
+    @input_error
+    def edit_note(self, user_input):
+        note_to_edit = user_input.replace("edit note", '')
+        text = input('Please, input the new note text.\n')
+
+        return self.notes.edit_note(note_to_edit, text)
              
     def exit(self, user_input):
-        with open(self.file, 'wb') as f:
-            pickle.dump(self.book.data, f)
+        if len(self.book.data) > 0:
+            self.write_to_file(self.contacts_file, self.book)
+
+        if len(self.notes.data) > 0:
+            self.write_to_file(self.notes_file, self.notes)
+
         print('Good Bye')
         sys.exit()
 
@@ -176,6 +204,13 @@ class Bot:
             if s_text in record.name.value.lower() + ' '.join([phone.value for phone in record.phones]):
                 result.append(str(record))
         return result
+    
+    def folder_sort(self, user_input):
+        target_folder_path = user_input.replace('sort folder ', '')
+        if not os.path.exists(target_folder_path):
+            return 'folder not found'
+    
+        return sort_folder(target_folder_path, display_analytics=True)
 
     def birthday(self, user_input):
         s = '\n'
@@ -226,18 +261,21 @@ class Bot:
     commands = {
             'hello': greeting,
             'add': add,
-            'write note': write_note,
             'change': change,
             'phone': phone,
             'show all': show_all,
             'good bye': exit,
             'close': exit,
             'exit': exit,
+            'sort folder': folder_sort,
             'search phone': search_phone,
             'delete': delete,
             'help': help,
             'birthday': birthday,
+            'write note': write_note,
             'search notes': search_notes,
+            'remove note': remove_note,
+            'edit note': edit_note,
             'create tag': create_tag,
             'link tag': link_tag,
             'show notes': show_notes
@@ -257,4 +295,4 @@ class Bot:
                 print('Unknown command! Please, enter command from the list below:\n')
                 handler = self.get_handler('help') 
             result = handler(self, user_input)
-            print(result)
+            print(result or '')
