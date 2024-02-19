@@ -13,6 +13,8 @@ commands_help = {
         'show all': 'Bot displays all saved contacts',
         'search phone': 'Bot displays the contact at your request',
         'write note': 'Bot asks to input title and text',
+        'edit note <title>': 'Bot edits note by title',
+        'remove note <title>': 'Bot removed note by title',
         'good bye, close, exit': 'Bot completes its work',
         'help': 'Bot shows help info',
         'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)'
@@ -158,6 +160,19 @@ class Bot:
         text = input('Please, input the text. You can leave this field empty.\n')
 
         return self.notes.add_note(title, text)
+    
+    @input_error
+    def remove_note(self, user_input):
+        note_to_remove = user_input.replace("remove note", '')
+
+        return self.notes.delete_note(note_to_remove)
+    
+    @input_error
+    def edit_note(self, user_input):
+        note_to_edit = user_input.replace("edit note", '')
+        text = input('Please, input the new note text.\n')
+
+        return self.notes.edit_note(note_to_edit, text)
              
     def exit(self, user_input):
         with open(self.file, 'wb') as f:
@@ -200,7 +215,6 @@ class Bot:
     commands = {
             'hello': greeting,
             'add': add,
-            'write note': write_note,
             'change': change,
             'phone': phone,
             'show all': show_all,
@@ -211,7 +225,10 @@ class Bot:
             'delete': delete,
             'help': help,
             'birthday': birthday,
-            'search notes': search_notes
+            'write note': write_note,
+            'search notes': search_notes,
+            'remove note': remove_note,
+            'edit note': edit_note
             }
 
     @input_error
@@ -222,7 +239,7 @@ class Bot:
 
     def run(self):
         while True:
-            user_input = input('>>').lower()
+            user_input = input('>>').lower().strip()
             handler = self.get_handler(user_input)
             if handler == None:
                 print('Unknown command! Please, enter command from the list below:\n')

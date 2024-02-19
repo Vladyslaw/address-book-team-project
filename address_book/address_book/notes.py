@@ -1,5 +1,4 @@
-from collections import UserDict
-from collections import defaultdict
+from collections import UserDict, defaultdict
 
 
 class Item:
@@ -42,6 +41,7 @@ class Tags:
 class Notes(UserDict):
 
     def __init__(self):
+        super().__init__()
         self.tags = defaultdict(list)
 
     def add_note(self, title, text):
@@ -65,6 +65,22 @@ class Notes(UserDict):
                 notes_found.add_note(note.title, note.text)
         
         return notes_found
+    
+    def delete_note(self, title_text):
+        for id, note in self.data.items():
+            if title_text.lower().strip() in note.title.lower():
+                del self.data[id]
+                return "Removed note"
+        return "No note with such title"
+    
+
+    def edit_note(self, title_text, new_text):
+        for id, note in self.data.items():
+            if title_text.lower().strip() in note.title.lower() or title_text.lower().strip() in note.title.lower():
+                self.data[id] = Item(note.title, new_text)
+                return self.get_notes()
+        return "No note with such text"
+
 
     def add_tag(self, note_title=None, note_text=None):
         pass
