@@ -5,4 +5,7 @@ setup(name='address_book',
       entry_points={
             'console_scripts':['address-book=address_book.run:run']
       },
-      packages=find_packages())
+      packages=find_packages(),
+      install_requires=[
+        'prompt_toolkit',
+    ])
