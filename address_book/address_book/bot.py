@@ -7,29 +7,6 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from folder_sorter import sort_folder
 
-function_names = ['hello', 'add', 'change', 'phone', 'show all', 'search phone', 'write note', 'help', 'exit']
-completer = WordCompleter(function_names)
-
-commands_help = {
-        'hello': 'Greetings in return',
-        'add': 'Bot saves the new contact(can\'t be less than 10 digit)',
-        'change': 'Bot saves the new phone number of the existing contact',
-        'phone': 'Bot displays the phone number for the given name',
-        'show all': 'Bot displays all saved contacts',
-        'search phone': 'Bot displays the contact at your request',
-        'write note': 'Bot asks to input title and text',
-        'edit note <title>': 'Bot edits note by title',
-        'remove note <title>': 'Bot removed note by title',
-        'good bye, close, exit': 'Bot completes its work',
-        'help': 'Bot shows help info',
-        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)',
-        'sort folder': 'Bot sorts the inqired folder'
-        }
-
-help = ''
-for key, value in commands_help.items():
-    help += '{:<25} | {:<70}\n'.format(key, value)
-
 
 def set_name():
     customer_input = input('    Input name: ')
@@ -44,7 +21,7 @@ def set_phone():
 
 
 def set_birthday():
-    customer_input = input('    Input date of birthday or pass: ')
+    customer_input = input('    Input date of birthday (DD.MM.YYYY) or pass: ')
     birthday = Birthday(customer_input) if customer_input != 'pass' else None
     if birthday:
         return str(birthday)
@@ -70,9 +47,33 @@ class Bot:
         self.book = AddressBook()
         self.notes = Notes()
 
-        self.load_file(self.contacts_file, self.book, "New AddressBook is created")
+        self.load_file(self.contacts_file, self.book, "AddressBook is created")
         self.load_file(self.notes_file, self.notes, "New NotesBook is created")
         
+        self.commands = {
+            'hello': self.greeting,
+            'add': self.add,
+            'change': self.change,
+            'phone': self.phone,
+            'show all': self.show_all,
+            'good bye': self.exit,
+            'close': self.exit,
+            'exit': self.exit,
+            'sort folder': self.folder_sort,
+            'search phone': self.search_phone,
+            'delete': self.delete,
+            'help': self.help,
+            'birthday': self.birthday,
+            'write note': self.write_note,
+            'search notes': self.search_notes,
+            'remove note': self.remove_note,
+            'edit note': self.edit_note,
+            'create tag': self.create_tag,
+            'link tag': self.link_tag,
+            'show notes': self.show_notes
+            }
+        
+        self.completer = self.set_compliter()
 
     def load_file(self, file_name, entity, message):
         try:
@@ -138,6 +139,25 @@ class Bot:
         return self.book
     
     def help(self, user_input):
+        commands_help = {
+        'hello': 'Greetings in return',
+        'add': 'Bot saves the new contact(can\'t be less than 10 digit)',
+        'change': 'Bot saves the new phone number of the existing contact',
+        'phone': 'Bot displays the phone number for the given name',
+        'show all': 'Bot displays all saved contacts',
+        'search phone': 'Bot displays the contact at your request',
+        'write note': 'Bot asks to input title and text',
+        'edit note <title>': 'Bot edits note by title',
+        'remove note <title>': 'Bot removed note by title',
+        'good bye, close, exit': 'Bot completes its work',
+        'help': 'Bot shows help info',
+        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)',
+        'sort folder': 'Bot sorts the inqired folder'
+        }
+
+        help = ''
+        for key, value in commands_help.items():
+            help += '{:<25} | {:<70}\n'.format(key, value)
         return help
 
     @input_error
@@ -212,21 +232,33 @@ class Bot:
     
         return sort_folder(target_folder_path, display_analytics=True)
 
-    def birthday(self, user_input):
-        s = '\n'
-        indx = user_input.replace('birthday', '')
-
-        if not indx:
-            indx = 7
+    @input_error
+    def birthday(self, user_input, days=None):
+        birthday_man = str()
+        if days == None:
+            days_depth = int(user_input.replace('birthday ', ''))
+        else:
+            days_depth = days
         
+        days_depth = days_depth if days_depth != None else 7
+
         for record in self.book.data.values():
             try:
                 if record.birthday.value:
-                    if record.days_to_birthday(record.birthday) < int(indx):
-                        s += '{:^15} {:^15}\n'.format(record.name.value, record.birthday.value)
+                    if record.days_to_birthday(record.birthday) < days_depth:
+                        birthday_man += '{:^15} {:^15}\n'.format(record.name.value, record.birthday.value)
             except AttributeError:
                 continue
-        return s if s != '\n' else '\nNobody has selebrate birthday on this term\n'
+        
+        if len(birthday_man) == 0 and days != None:
+            return str()
+        elif len(birthday_man) == 0:
+            return f'\nNobody from your contacts celebrates birthday for the next {days_depth} days\n'
+        elif days != None:
+            birthday_man = f'Following contacts celebrate birthday in the nearest {days_depth} days:\n'\
+                + '{:^15} {:^15}\n'.format('Name', 'Birthday') + birthday_man
+            
+        return birthday_man
 
     @input_error
     def search_notes(self, user_input: str) -> str:
@@ -258,28 +290,13 @@ class Bot:
         
         return self.notes.get_notes()
 
-    commands = {
-            'hello': greeting,
-            'add': add,
-            'change': change,
-            'phone': phone,
-            'show all': show_all,
-            'good bye': exit,
-            'close': exit,
-            'exit': exit,
-            'sort folder': folder_sort,
-            'search phone': search_phone,
-            'delete': delete,
-            'help': help,
-            'birthday': birthday,
-            'write note': write_note,
-            'search notes': search_notes,
-            'remove note': remove_note,
-            'edit note': edit_note,
-            'create tag': create_tag,
-            'link tag': link_tag,
-            'show notes': show_notes
-            }
+    def set_compliter(self):
+        function_names = list()
+        for command in self.commands.keys():
+            function_names.append(command)
+
+        # function_names = ['hello', 'add', 'change', 'phone', 'show all', 'search phone', 'write note', 'help', 'exit']
+        return WordCompleter(function_names)
 
     @input_error
     def get_handler(self, user_input):
@@ -288,11 +305,14 @@ class Bot:
                 return self.commands[action]
 
     def run(self):
+        print('Hello!')
+        print(self.birthday(str(), 30))
+
         while True:
-            user_input = prompt('>> ', completer=completer).lower()
+            user_input = prompt('>> ', completer=self.completer).lower()
             handler = self.get_handler(user_input)
             if handler == None:
                 print('Unknown command! Please, enter command from the list below:\n')
                 handler = self.get_handler('help') 
-            result = handler(self, user_input)
+            result = handler(user_input)
             print(result or '')
