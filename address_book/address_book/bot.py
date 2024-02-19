@@ -62,14 +62,25 @@ def set_address():
   
 class Bot:
     def __init__(self) -> None:
-        self.file = 'contacts.json'
+        self.contacts_file = 'contacts.bin'
+        self.notes_file = 'notes.bin'
         self.book = AddressBook()
         self.notes = Notes()
+
+        self.load_file(self.contacts_file, self.book, "New AddressBook is created")
+        self.load_file(self.notes_file, self.notes, "New NotesBook is created")
+        
+
+    def load_file(self, file_name, entity, message):
         try:
-            with open(self.file, 'rb') as file:
-                self.book.data = pickle.load(file)
+            with open(file_name, 'rb') as file:
+                entity.data = pickle.load(file)
         except:
-            print('New AddressBook')
+            print(message)
+
+    def write_to_file(self, file_name, entity):
+        with open(file_name, 'wb') as f:
+            pickle.dump(entity.data, f)
 
     @staticmethod
     def input_error(func):
@@ -173,8 +184,12 @@ class Bot:
         return self.notes.edit_note(note_to_edit, text)
              
     def exit(self, user_input):
-        with open(self.file, 'wb') as f:
-            pickle.dump(self.book.data, f)
+        if len(self.book.data) > 0:
+            self.write_to_file(self.contacts_file, self.book)
+
+        if len(self.notes.data) > 0:
+            self.write_to_file(self.notes_file, self.notes)
+
         print('Good Bye')
         sys.exit()
 
