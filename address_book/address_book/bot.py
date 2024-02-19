@@ -62,7 +62,7 @@ class Bot:
         self.book = AddressBook()
         self.notes = Notes()
 
-        self.load_file(self.contacts_file, self.book, "New ContactBook is created")
+        self.load_file(self.contacts_file, self.book, "New AddressBook is created")
         self.load_file(self.notes_file, self.notes, "New NotesBook is created")
         
 
@@ -173,7 +173,7 @@ class Bot:
     def exit(self, user_input):
         if len(self.book.data) > 0:
             self.write_to_file(self.contacts_file, self.book)
-            
+
         if len(self.notes.data) > 0:
             self.write_to_file(self.notes_file, self.notes)
 
