@@ -70,7 +70,8 @@ class Bot:
             'edit note': self.edit_note,
             'create tag': self.create_tag,
             'link tag': self.link_tag,
-            'show notes': self.show_notes
+            'show notes': self.show_notes,
+            'find notes by tags': self.search_notes_by_tags
             }
         
         self.completer = self.set_compliter()
@@ -224,6 +225,17 @@ class Bot:
             if s_text in record.name.value.lower() + ' '.join([phone.value for phone in record.phones]):
                 result.append(str(record))
         return result
+    
+    @input_error
+    def search_notes_by_tags(self, user_input):
+        tag_name = input('Please, input the tag name:\n')
+
+        tag_id = self.notes.get_tag_id(tag_name)
+        if tag_id == None:
+            return f"There is no such tag {tag_name}"
+
+        return self.notes.find_notes_by_tag(tag_id=tag_id)
+    
     
     def folder_sort(self, user_input):
         target_folder_path = user_input.replace('sort folder ', '')
