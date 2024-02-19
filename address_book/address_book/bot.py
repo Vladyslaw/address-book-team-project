@@ -1,7 +1,7 @@
 import sys
 import os
 import pickle
-from classes import AddressBook, Record, Phone, Birthday, Email
+from classes import AddressBook, Record, Phone, Birthday, Email, Address
 from notes import Notes
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
@@ -39,6 +39,30 @@ def set_address():
     address = customer_input if customer_input != 'pass' else None
     return address
 
+def input_phone():
+    phone = input('    Input phone you want to change: ')
+    return phone
+
+
+def input_new_phone():
+    new_phone = input('    Input new phone: ')
+    return Phone(new_phone)
+
+
+def input_birthday():
+    birthday = input('    Input date of birthday: ')
+    return Birthday(birthday)
+
+
+def input_email():
+    email = input('    Input email: ')
+    return Email(email)
+
+
+def input_address():
+    address = input('    Input address: ')
+    return Address(address)
+
   
 class Bot:
     def __init__(self) -> None:
@@ -53,24 +77,27 @@ class Bot:
         self.commands = {
             'hello': self.greeting,
             'add': self.add,
-            'change': self.change,
             'phone': self.phone,
-            'show all': self.show_all,
-            'good bye': self.exit,
+            'show-all': self.show_all,
+            'good-bye': self.exit,
             'close': self.exit,
             'exit': self.exit,
-            'sort folder': self.folder_sort,
-            'search phone': self.search_phone,
+            'sort-folder': self.folder_sort,
+            'search-phone': self.search_phone,
             'delete': self.delete,
             'help': self.help,
             'birthday': self.birthday,
-            'write note': self.write_note,
-            'search notes': self.search_notes,
-            'remove note': self.remove_note,
-            'edit note': self.edit_note,
-            'create tag': self.create_tag,
-            'link tag': self.link_tag,
-            'show notes': self.show_notes
+            'write-note': self.write_note,
+            'search-notes': self.search_notes,
+            'remove-note': self.remove_note,
+            'edit-note': self.edit_note,
+            'create-tag': self.create_tag,
+            'link-tag': self.link_tag,
+            'show-notes': self.show_notes,
+            'edit-phone': self.edit_phone,
+            'edit-birthday': self.edit_birthday,
+            'edit-email': self.edit_email,
+            'edit-address': self.edit_address
             }
         
         self.completer = self.set_compliter()
@@ -96,7 +123,7 @@ class Bot:
             except ValueError:
                 return f'Please follow the commands list \n{help}'
             except IndexError:
-                return 'Please input command, name and/or phone'
+                return 'Please input command and name'
         return inner
 
     def greeting(self, user_input):
@@ -161,16 +188,69 @@ class Bot:
         return help
 
     @input_error
-    def change(self, user_input):
-        name, phone, new_phone = user_input.replace('change', '').split()
-
+    def edit_phone(self, user_input):
+        name = user_input.split()[1]
         for record in self.book.data.values():
-            if name in record.name.value.lower():
-                new_record = record
-                new_record.edit_phone(phone, new_phone)
-                self.book.add_record(new_record)
-                return 'Contact updated!'
+            if name.lower() != record.name.value.lower():
+                raise KeyError
+            phone = input_phone()
+            if phone not in [phone.value for phone in record.phones]:
+                print('    Such phone not exist!')
+                input_phone()
+            try:
+                new_phone = input_new_phone()
+            except ValueError:
+                print('    Incorrect phone format, try again with 10 digits!')
+                new_phone = input_new_phone()
+            new_record = record
+            new_record.change_phone(phone, str(new_phone))
+            self.book.add_record(new_record)
+            return '    Contact updated!' 
+
+    @input_error
+    def edit_birthday(self, user_input):
+        name = user_input.split()[1]   
+        for record in self.book.data.values():
+            if name.lower() != record.name.value.lower():
+                raise KeyError
+            try:
+                birthday = input_birthday()
+            except ValueError:
+                print('    Incorrect birthday format, try again with DD.MM.YYYY!')
+                birthday = input_birthday()
+            new_record = record
+            new_record.change_birthday(str(birthday))
+            self.book.add_record(new_record)
+            return 'Contact updated!'
             
+    @input_error
+    def edit_email(self, user_input):
+        name = user_input.split()[1]
+        for record in self.book.data.values():
+            if name.lower() != record.name.value.lower():
+                raise KeyError
+            try:
+                email = input_email()
+            except ValueError:
+                print('    Incorrect email format, try again with name@test.com!')
+                email = input_email()
+            new_record = record
+            new_record.change_email(str(email))
+            self.book.add_record(new_record)
+            return 'Contact updated!'
+          
+    @input_error
+    def edit_address(self, user_input):
+        name = user_input.split()[1]
+        for record in self.book.data.values():
+            if name.lower() != record.name.value.lower():
+                raise KeyError
+            address = input_address()
+            new_record = record
+            new_record.change_address(str(address))
+            self.book.add_record(new_record)
+            return 'Contact updated!'
+       
     @input_error
     def delete(self, user_input):
         name = user_input.replace('delete', '')
@@ -300,8 +380,8 @@ class Bot:
 
     @input_error
     def get_handler(self, user_input):
-        for action in self.commands:
-            if user_input.startswith(action):
+        for action in self.commands.keys():
+            if action == user_input.lower().split()[0]:
                 return self.commands[action]
 
     def run(self):
