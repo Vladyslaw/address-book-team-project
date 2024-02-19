@@ -1,8 +1,10 @@
 import sys
+import os
 import pickle
 import re
 from classes import AddressBook, Record, Phone, Birthday, Email
 from notes import Notes
+from folder_sorter import sort_folder
 
 
 commands_help = {
@@ -15,7 +17,8 @@ commands_help = {
         'write note': 'Bot asks to input title and text',
         'good bye, close, exit': 'Bot completes its work',
         'help': 'Bot shows help info',
-        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)'
+        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)',
+        'sort folder': 'Bot sorts the inqired folder'
         }
 
 help = ''
@@ -168,6 +171,13 @@ class Bot:
             if s_text in record.name.value.lower() + ' '.join([phone.value for phone in record.phones]):
                 result.append(str(record))
         return result
+    
+    def folder_sort(self, user_input):
+        target_folder_path = user_input.replace('sort folder ', '')
+        if not os.path.exists(target_folder_path):
+            return 'folder not found'
+    
+        return sort_folder(target_folder_path, display_analytics=True)
 
     def birthday(self, user_input):
         s = '\n'
@@ -225,6 +235,7 @@ class Bot:
             'good bye': exit,
             'close': exit,
             'exit': exit,
+            'sort folder': folder_sort,
             'search phone': search_phone,
             'delete': delete,
             'help': help,
@@ -249,4 +260,4 @@ class Bot:
                 print('Unknown command! Please, enter command from the list below:\n')
                 handler = self.get_handler('help') 
             result = handler(self, user_input)
-            print(result)
+            print(result or '')
