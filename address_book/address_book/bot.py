@@ -1,9 +1,12 @@
 import sys
 import pickle
-import re
 from classes import AddressBook, Record, Phone, Birthday, Email
 from notes import Notes
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 
+function_names = ['hello', 'add', 'change', 'phone', 'show all', 'search phone', 'write note', 'help', 'exit']
+completer = WordCompleter(function_names)
 
 commands_help = {
         'hello': 'Greetings in return',
@@ -248,7 +251,7 @@ class Bot:
 
     def run(self):
         while True:
-            user_input = input('>>').lower()
+            user_input = prompt('>> ', completer=completer).lower()
             handler = self.get_handler(user_input)
             if handler == None:
                 print('Unknown command! Please, enter command from the list below:\n')
