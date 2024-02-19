@@ -1,8 +1,10 @@
 import sys
+import os
 import pickle
 import re
 from classes import AddressBook, Record, Phone, Birthday, Email
 from notes import Notes
+from folder_sorter import sort_folder
 
 
 commands_help = {
@@ -17,7 +19,8 @@ commands_help = {
         'remove note <title>': 'Bot removed note by title',
         'good bye, close, exit': 'Bot completes its work',
         'help': 'Bot shows help info',
-        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)'
+        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)',
+        'sort folder': 'Bot sorts the inqired folder'
         }
 
 help = ''
@@ -45,7 +48,7 @@ def set_birthday():
     return birthday
 
 def set_email():
-    customer_input = input('    Input email: ')
+    customer_input = input('    Input email or pass: ')
     email = Email(customer_input) if customer_input != 'pass' else None
     if email:
         return str(email)
@@ -104,18 +107,13 @@ class Bot:
                 try:
                     email = set_email()
                 except ValueError:
-                    print(' Incorrect email fotmat, try again with name@test.com')
+                    print('    Incorrect email fotmat, try again with name@test.com')
                     email = set_email()
             if email or email is None:
-                break
-        
-        record = Record(name, phone, birthday, email)
-
-        '''address = set_address()
+                address = set_address()
             if address or address is None:
                 break
-        record = Record(name, phone, birthday, address)'''
-
+        record = Record(name, phone, birthday, email, address)
         self.book.add_record(record)
         return 'New contact added!'
     
@@ -156,8 +154,8 @@ class Bot:
         if user_input != "write note":
             raise ValueError
         
-        title = input('Please, input the title. You can leave this field empty.\n')
-        text = input('Please, input the text. You can leave this field empty.\n')
+        title = input('Please, input the title:\n')
+        text = input('Please, input the text. You can leave this field empty:\n')
 
         return self.notes.add_note(title, text)
     
@@ -188,6 +186,13 @@ class Bot:
             if s_text in record.name.value.lower() + ' '.join([phone.value for phone in record.phones]):
                 result.append(str(record))
         return result
+    
+    def folder_sort(self, user_input):
+        target_folder_path = user_input.replace('sort folder ', '')
+        if not os.path.exists(target_folder_path):
+            return 'folder not found'
+    
+        return sort_folder(target_folder_path, display_analytics=True)
 
     def birthday(self, user_input):
         s = '\n'
@@ -212,6 +217,29 @@ class Bot:
         
         return self.notes.find_notes(command_body).get_notes()
 
+    @input_error
+    def create_tag(self, user_input: str) -> str:
+        command_body = user_input.replace('create tag', '')
+        command_body = command_body.strip()
+
+        return self.notes.tags.add_tag(command_body)
+    
+    @input_error
+    def link_tag(self, user_input: str) -> str:
+        if user_input != "link tag":
+            raise ValueError
+        
+        note_title = input('Please, input the title of note you want to add:\n')
+        tag_name = input('Please, input the name of tag you want to add:\n')
+
+        return self.notes.add_tag_for_note(tag_name, note_title)
+    
+    def show_notes(self, user_input: str) -> str:
+        if user_input != "show notes":
+            raise ValueError
+        
+        return self.notes.get_notes()
+
     commands = {
             'hello': greeting,
             'add': add,
@@ -221,6 +249,7 @@ class Bot:
             'good bye': exit,
             'close': exit,
             'exit': exit,
+            'sort folder': folder_sort,
             'search phone': search_phone,
             'delete': delete,
             'help': help,
@@ -228,7 +257,10 @@ class Bot:
             'write note': write_note,
             'search notes': search_notes,
             'remove note': remove_note,
-            'edit note': edit_note
+            'edit note': edit_note,
+            'create tag': create_tag,
+            'link tag': link_tag,
+            'show notes': show_notes
             }
 
     @input_error
@@ -245,4 +277,4 @@ class Bot:
                 print('Unknown command! Please, enter command from the list below:\n')
                 handler = self.get_handler('help') 
             result = handler(self, user_input)
-            print(result)
+            print(result or '')
