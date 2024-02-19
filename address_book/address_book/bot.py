@@ -6,21 +6,41 @@ from notes import Notes
 
 
 commands_help = {
-        'hello': 'Greetings in return',
-        'add': 'Bot saves the new contact(can\'t be less than 10 digit)',
+        'add': '''Bot saves the new contact, you should input:
+                <name> 
+
+                <phone number> 10 digits format
+
+                <date of birthday> "DD.MM.YYYY" format; (optional)
+
+                <email> "name@test.com" format; (optional)
+
+                <address> (optional)
+
+                <pass> if you want to skip optionals''',
+        'birthday': '''Bot shows nearest contacts birthday by given term:
+                <birthday> 7 days default
+
+                <birthday (number of days)>''',
         'change': 'Bot saves the new phone number of the existing contact',
+        'close': 'Bot completes its work',
+        'exit': 'Bot completes its work',
+        'good bye': 'Bot completes its work',
+        'hello': 'Greetings in return',
+        'help': 'Bot shows help info',
         'phone': 'Bot displays the phone number for the given name',
         'show all': 'Bot displays all saved contacts',
         'search phone': 'Bot displays the contact at your request',
-        'write note': 'Bot asks to input title and text',
-        'good bye, close, exit': 'Bot completes its work',
-        'help': 'Bot shows help info',
-        'birthday': 'Bot shows nearest contacts birthday by given term (default 7 days)'
+        'write note': '''Bot asks to input title and text:
+                <title> (optioanl)
+                
+                <text> (optional)''',
+        
         }
 
 help = ''
 for key, value in commands_help.items():
-    help += '{:<25} | {:<70}\n'.format(key, value)
+    help += '\n{:^10}\n\t{:<50}\n'.format(key, value)
 
 
 def set_name():
