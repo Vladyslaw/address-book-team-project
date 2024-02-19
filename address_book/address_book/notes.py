@@ -67,22 +67,38 @@ class Notes(UserDict):
         self.data[idx] = new_note
         return f"Note with title {title} was succesfully added!" # self.get_notes()
     
-    def get_notes(self):
+    def get_notes(self, notes_id_list=None):
         notes = '|{:^30}|{:^50}|{:^30}|\n'.format("Title", "Text", "Tags")
-        for key, value in self.data.items():
-            notes += '|{:^30}|{:<50}|{:^30}|\n'.format(value.title, value.text, self.get_note_tags(key))
+        if notes_id_list == None or len(notes_id_list) == 0:
+            for key, value in self.data.items():
+                notes += '|{:^30}|{:<50}|{:^30}|\n'.format(value.title, value.text, self.get_note_tags(key))
+        else:
+            for key, value in self.data.items():
+                if key in notes_id_list:
+                    notes += '|{:^30}|{:<50}|{:^30}|\n'.format(value.title, value.text, self.get_note_tags(key))
         return notes
 
     def find_notes(self, text_to_find):
-        text_to_find = text_to_find
+        text_to_find = text_to_find.lower()
         notes_found = Notes()
         for note in self.data.values():
-            if note.title.lower().find(text_to_find.lower()) != -1\
-                or note.text.lower().find(text_to_find.lower()) != -1:
+            if note.title.lower().find(text_to_find) != -1\
+                or note.text.lower().find(text_to_find) != -1:
                 notes_found.add_note(note.title, note.text)
         
         return notes_found
     
+    def find_notes_by_tag(self, tag_name=None, tag_id=None):
+        if tag_id == None and tag_name == None:
+            return str()
+        
+        notes_found = list()
+        for node_id, tag_ids in self.notes_tags.items():
+            if tag_id in tag_ids:
+                notes_found.append(node_id)
+
+        return self.get_notes(notes_id_list=notes_found)
+
     def delete_note(self, title_text):
         for id, note in self.data.items():
             if title_text.lower().strip() in note.title.lower():
@@ -90,14 +106,12 @@ class Notes(UserDict):
                 return "Removed note"
         return "No note with such title"
     
-
     def edit_note(self, title_text, new_text):
         for id, note in self.data.items():
             if title_text.lower().strip() in note.title.lower() or title_text.lower().strip() in note.title.lower():
                 self.data[id] = Item(note.title, new_text)
                 return self.get_notes()
         return "No note with such text"
-
 
     def get_note_id(self, note_title):
         note = Item(note_title, None)
@@ -127,8 +141,11 @@ class Notes(UserDict):
         if tag_index == None:
             return f"Such tag '{tag_name}' doesn't exist"
         
-        self.notes_tags[note_index].append(tag_index)
-        return f"Tag '{tag_name}' for the note '{note_title}' was created succesfully"
+        if tag_index in self.notes_tags[note_index]:
+            return f"Tag '{tag_name}' was already linked to the note '{note_title}'."
+        else:
+            self.notes_tags[note_index].append(tag_index)
+            return f"Tag '{tag_name}' for the note '{note_title}' was created succesfully."
 
     def get_note_tags(self, note_id):
         tags = list()
