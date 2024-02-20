@@ -1,60 +1,81 @@
-# Address Book Package
+# BOT-Assistatnt
+###Your personal assistant
+This bot will significantly simplify your usage of your phonebook. It enables note creation and seamless navigation between them. Your personal assistant will sort any folder with your files.
 
-The Address Book package provides a command-line interface for managing contacts and notes efficiently. It allows users to add, edit, delete contacts, search for contacts by phone number, and perform various other operations related to contacts and notes.
-
-## Features
-
-- **Contact Management**: Add, edit, delete contacts with details like name, phone number, email, birthday, and address.
+###Features
+- **Contact Management**: Add, edit, delete contacts.
 - **Notes Management**: Write, edit, delete notes with titles and text.
-- **Tagging**: Tag notes for better organization and retrieval.
-- **Search and Filter**: Search contacts by phone number, search notes by title or text, and find notes by tags.
+- **Tagging**: Tag notes for better navigation.
+- **Search and Filter**: Search contacts by name, search notes by title or text, and find notes by tags.
 - **Folder Sorting**: Sort files in a folder based on file extensions into predefined categories.
 
-## Installation
+###Installation
+1. Clone repository:  https://github.com/Vladyslaw/address-book-team-project
 
-1. Clone the repository:
-git clone <repository_url>
+2. Navigate to the address_book package directory: cd address_book
+3. Install dependencies: pip install -e .
 
+###Usage
 
-2. Navigate to the address_book package directory:
-cd address_book
+####Running the application
 
+To start the application, run the `run.py` script: python run.py
 
-3. Install dependencies:
-pip install -r requirements.txt
+####Commands help
 
-
-## Usage
-
-### Running the Application
-
-To start the application, run the `run.py` script:
-python run.py
-
-
-### Commands
-
-Once the application is running, you can interact with it using the following commands:
-
-- **hello**: Greet the bot.
-- **add**: Add a new contact to the address book.
-- **phone**: Display the phone number for a given contact name.
-- **show all**: Display all saved contacts.
-- **good bye**, **close**, **exit**: Close the application.
-- **help**: Display a list of available commands and their descriptions.
-- **birthday**: Display contacts with birthdays within a specified number of days.
-- **write note**: Write a new note.
-- **edit note**: Edit an existing note by title.
-- **remove note**: Remove a note by title.
-- **search notes**: Search for notes by title or text.
-- **create tag**: Create a new tag for organizing notes.
-- **link tag**: Link a tag to a specific note.
-- **show notes**: Display all saved notes.
-- **find notes by tags**: Find notes associated with specific tags.
-- **sort folder**: Sort files in a folder based on file extensions.
-
-## File Structure
-
+    -'add': Bot saves the new contact, you should input:
+                <name>
+                <phone> number 10 digits format
+                <date of birthday> "DD.MM.YYYY" format; (optional)
+                <email> "name@test.com" format; (optional)
+                <address> (optional)
+                <pass> if you want to skip optionals
+    -'birthday': Bot shows the nearest contacts birthday by given term (default: 7 days):
+                <depth in days>
+    -'close': Bot completes its work
+    -'create tag': Bot creates the tag
+    -'delete': Bot deletes the contact
+                <name>
+    -'edit address': Bot edits the address for contact:
+                <name>
+                <address>
+    -'edit birthday': Bot edits the birthday for contact:
+                <name>
+                <date of birthday>
+    -'edit email': Bot edits the email for contact:
+                <name>
+                <email>
+    -'edit note': Bot edits the note:
+                <title>
+                <text>
+    -'edit phone': Bot edits the phone for contact:
+                <name>
+                <phone>
+                <new phone>
+    -'exit': Bot completes its work
+    -'find notes by tags': Bot searchs the notes by tag:
+                <tag>
+    -'good bye': Bot completes its work
+    -'hello': Greet the bot
+    -'help': Bot shows the help info
+    -'link tag': Bot attaches a tag to the note:
+                <title>
+                <tag>'
+    -'phone': Bot displays the phone number for the given name:
+                <name>
+    -'remove note': Bot removes the note by title:
+                <title>
+    -'show all': Bot displays all saved contacts
+    -'show notes': Bit displays all saved notes
+    -'search notes': Bot searchs the notes by title:
+                <title>
+    -'search phone': Bot displays the contact at your request
+    -'sort folder': Bot sort the folder by file's type (image, documents, music, video, archive, other):
+                <path to folder>
+    -'write note': Bot saves the note:
+                <title>
+                <text> (optional)
+###File Structure
 - **address_book/**
   - **bot.py**: Contains the main logic for the address book bot.
   - **classes.py**: Defines the classes for contacts and notes management.
@@ -62,11 +83,11 @@ Once the application is running, you can interact with it using the following co
   - **notes.py**: Handles operations related to notes, including tagging.
   - **run.py**: Entry point for running the address book application.
   - **\_\_init__.py**: Initializes the address book package.
-  
-## Contribution
 
-Contributions to the Address Book package are welcome! If you encounter any issues or have suggestions for improvements, feel free to open an issue or submit a pull request on the GitHub repository.
-
-## License
-
-This project is licensed under the MIT License.
+###Acknowledgements
+Acknowledgements for individuals that helped inspire, create and improve product.
+* Vladyslav Kuzmych - team leader
+* Yelyzaveta Melikhova - developer
+* Oleksiy Storozhuk - developer
+* Yurii Tymoshenko - developer
+* Mykhailo Mykhailiuk - developer
