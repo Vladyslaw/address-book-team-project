@@ -112,8 +112,9 @@ class Bot:
         return input('\tEnter name: ')
 
     @input_error
-    def phone_input(self):
-        phone_input = input('\tEnter phone: ')
+    def phone_input(self, text_for_user=None):
+        text = '\t' + (text_for_user if text_for_user != None else '') + 'Enter phone: '
+        phone_input = input(text)
         phone = Phone(phone_input)
         while not phone.is_valid(phone.value):
             print('\tInvalid phone number format! Phone must contain 10 digits.')
@@ -196,9 +197,10 @@ class Bot:
     @input_error
     def edit_phone(self):
         record_to_change = self.get_record_by_name_input()
-        phone = self.phone_input()
+        current_phone = self.phone_input()
+        new_phone = self.phone_input('New Phone. ')
 
-        record_to_change.change_phone(phone, str(new_phone))
+        record_to_change.change_phone(phone_obj = current_phone, new_phone_obj = new_phone)
         self.book.add_record(record_to_change)
         return '\tContact updated!' 
 

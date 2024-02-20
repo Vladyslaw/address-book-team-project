@@ -35,6 +35,11 @@ class Phone(Field):
     def is_valid(self, value):
         return value.isdigit() and len(value) == 10
     
+    def __eq__(self, phone):
+        if type(phone) != Phone:
+            return False
+        return self.value == phone.value
+    
 class Address(Field):
     def __str__(self):
         return str(self.value)
@@ -99,13 +104,21 @@ class Record:
             if i.value == phone:
                 self.phones.remove(i)
 
-    def change_phone(self, phone: str, new_phone):
-        new_phone = Phone(new_phone)
-        for i in self.phones:
-            if i.value == phone:
-                i.value = new_phone.value
-                return          
-        raise ValueError
+    def change_phone(self, phone:str=None, new_phone:str=None, phone_obj:Phone=None, new_phone_obj:Phone=None):
+        if phone != None and new_phone != None:
+            phone = Phone(phone)
+            new_phone = Phone(new_phone)
+        elif phone_obj != None and new_phone_obj != None:
+            phone = phone_obj
+            new_phone = new_phone_obj
+        
+        try:
+            index = self.phones.index(phone)
+            self.phones[index] = new_phone
+        except ValueError:
+            return 'Contacts has no such phone'
+        
+        return "Phone '{phone.value}' was successfuly changed to '{new_phone.value}'"
     
     def change_birthday(self, birthday):
         birthday = Birthday(birthday)
