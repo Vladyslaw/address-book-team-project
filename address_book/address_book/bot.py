@@ -8,47 +8,6 @@ from prompt_toolkit.completion import WordCompleter
 from folder_sorter import sort_folder
 
 
-def set_name():
-    customer_input = input('    Input name: ')
-    name = customer_input
-    return name
-
-
-def set_phone():
-    customer_input = input('    Input phone: ')
-    phone = Phone(customer_input)
-    return str(phone)
-
-
-def set_birthday():
-    customer_input = input('    Input date of birthday (DD.MM.YYYY) or pass: ')
-    birthday = Birthday(customer_input) if customer_input != 'pass' else None
-    if birthday:
-        return str(birthday)
-    return birthday
-
-def set_email():
-    customer_input = input('    Input email or pass: ')
-    email = Email(customer_input) if customer_input != 'pass' else None
-    if email:
-        return str(email)
-    return email
-
-def set_address():
-    customer_input = input('    Input address or pass: ')
-    address = customer_input if customer_input != 'pass' else None
-    return address
-
-def input_phone():
-    phone = input('    Input phone you want to change: ')
-    return phone
-
-
-def input_new_phone():
-    new_phone = input('    Input new phone: ')
-    return Phone(new_phone)
-
-
 def input_birthday():
     birthday = input('    Input date of birthday: ')
     return Birthday(birthday)
@@ -127,46 +86,92 @@ class Bot:
                 return 'Please input command and name'
         return inner
 
-    def greeting(self, user_input):
+    def greeting(self):
         return "How can I help you?"
 
+    def get_record(self, name):
+        for record in self.book.data.values():
+            if record.name.value == name:
+                return record
+        
+        return None
+    
     @input_error
-    def add(self, user_input):
-        while True:
-            name = set_name()
-            if name:
-                try:
-                    phone = set_phone()
-                except ValueError:
-                    print('    Incorrect phone number, try again with 10 digit')
-                    phone = set_phone()
-            if phone:
-                try:
-                    birthday = set_birthday()
-                except ValueError:
-                    print('    Incorrect birthday format, try again with DD.MM.YYYY')
-                    birthday = set_birthday()
-            if birthday or birthday is None:
-                try:
-                    email = set_email()
-                except ValueError:
-                    print('    Incorrect email fotmat, try again with name@test.com')
-                    email = set_email()
-            if email or email is None:
-                address = set_address()
-            if address or address is None:
-                break
+    def get_record_by_name_input(self):
+        name = input('\tEnter contact name: ').rstrip().lstrip()
+        record_to_change = get_record(name)
+        while record_to_change == None:
+            print(f'There is no such contact with name {name}')
+            name = input('\tEnter contact name: ').rstrip().lstrip()
+            record_to_change = get_record(name)
+        
+        return record_to_change
+    
+    @input_error
+    def name_input(self):
+        return input('\tEnter name: ')
+
+    @input_error
+    def phone_input(self):
+        phone_input = input('\tEnter phone: ')
+        phone = Phone(phone_input)
+        while not phone.is_valid():
+            print('\tInvalid phone number format! Phone must contain 10 digits.')
+            phone_input = input('\tEnter phone: ')
+        
+        return phone
+    
+    @input_error
+    def birhtday_input(self):
+        birthday_input = input('\tEnter date of birthday (DD.MM.YYYY) or pass: ')
+        birthday = 'Not set'
+        if birthday_input not in ('pass', ''):
+            birthday = Birthday(birthday_input)
+            while not birthday.is_valid() and birthday_input not in ('pass', ''):
+                print('\tIncorrect birthday format, try again with DD.MM.YYYY')
+                birthday_input = input('\tEnter date of birthday (DD.MM.YYYY) or pass: ')
+        
+        return birthday
+    
+    @input_error
+    def email_input(self):
+        email_input = input('\tEnter email or pass: ')
+        email = 'Not set'
+        if email_input not in ('pass', ''):
+            email = Email(email_input)
+            while not email.is_valid() and email_input not in ('pass', ''):
+                print('\tIncorrect email format, try again in format name@test.com')
+                email_input = input('\tEnter or pass: ')
+        
+        return email
+
+    @input_error
+    def address_input(self):
+        address = input('\tEnter address or pass: ')
+        if address in ('pass', ''):
+            address = 'Not set'
+        
+        return address
+
+    @input_error
+    def add(self):
+        name = self.name_input()
+        phone = self.phone_input()
+        birthday = self.birhtday_input()
+        email = self.email_input()
+        address = self.address_input()
+        
         record = Record(name, phone, birthday, email, address)
         self.book.add_record(record)
-        return 'New contact added!'
+        return 'New contact was added!'
     
-    def show_all(self, user_input):
+    def show_all(self):
         if not self.book.data:
             return 'You have no any contacts saved'
         
         return self.book
     
-    def help(self, user_input):
+    def help(self):
         commands_help = {
         'hello': 'Greetings in return',
         'add': 'Bot saves the new contact(can\'t be less than 10 digit)',
@@ -189,105 +194,67 @@ class Bot:
         return help
 
     @input_error
-    def edit_phone(self, user_input):
-        name = user_input.split()[1]
-        for record in self.book.data.values():
-            if name.lower() != record.name.value.lower():
-                raise KeyError
-            phone = input_phone()
-            if phone not in [phone.value for phone in record.phones]:
-                print('    Such phone not exist!')
-                input_phone()
-            try:
-                new_phone = input_new_phone()
-            except ValueError:
-                print('    Incorrect phone format, try again with 10 digits!')
-                new_phone = input_new_phone()
-            new_record = record
-            new_record.change_phone(phone, str(new_phone))
-            self.book.add_record(new_record)
-            return '    Contact updated!' 
+    def edit_phone(self):
+        record_to_change = self.get_record_by_name_input()
+        phone = self.phone_input()
+
+        record_to_change.change_phone(phone, str(new_phone))
+        self.book.add_record(record_to_change)
+        return '\tContact updated!' 
 
     @input_error
-    def edit_birthday(self, user_input):
-        name = user_input.split()[1]   
-        for record in self.book.data.values():
-            if name.lower() != record.name.value.lower():
-                raise KeyError
-            try:
-                birthday = input_birthday()
-            except ValueError:
-                print('    Incorrect birthday format, try again with DD.MM.YYYY!')
-                birthday = input_birthday()
-            new_record = record
-            new_record.change_birthday(str(birthday))
-            self.book.add_record(new_record)
-            return 'Contact updated!'
+    def edit_birthday(self):
+        record_to_change = self.get_record_by_name_input()
+        birthday = self.birhtday_input()
+        record_to_change.change_birthday(str(birthday))
+        self.book.add_record(record_to_change)
+        return 'Contact updated!'
             
     @input_error
-    def edit_email(self, user_input):
-        name = user_input.split()[1]
-        for record in self.book.data.values():
-            if name.lower() != record.name.value.lower():
-                raise KeyError
-            try:
-                email = input_email()
-            except ValueError:
-                print('    Incorrect email format, try again with name@test.com!')
-                email = input_email()
-            new_record = record
-            new_record.change_email(str(email))
-            self.book.add_record(new_record)
-            return 'Contact updated!'
+    def edit_email(self):
+        record_to_change = self.get_record_by_name_input()
+        email = self.email_input()
+        record_to_change.change_email(str(email))
+        self.book.add_record(record_to_change)
+        return 'Contact updated!'
           
     @input_error
-    def edit_address(self, user_input):
-        name = user_input.split()[1]
-        for record in self.book.data.values():
-            if name.lower() != record.name.value.lower():
-                raise KeyError
-            address = input_address()
-            new_record = record
-            new_record.change_address(str(address))
-            self.book.add_record(new_record)
-            return 'Contact updated!'
+    def edit_address(self):
+        record_to_change = self.get_record_by_name_input()
+        address = self.address_input()
+        record_to_change.change_address(str(address))
+        self.book.add_record(record_to_change)
+        return 'Contact updated!'
        
     @input_error
-    def delete(self, user_input):
-        name = user_input.replace('delete', '')
-        for record in self.book.data.values():
-            if name == record.name.value.lower():         
-                return self.book.delete(record)
+    def delete(self):
+        record_to_delete = self.get_record_by_name_input()
+        return self.book.delete(record_to_delete)
 
     @input_error
-    def phone(self, user_input):
-        name = user_input.replace('phone', '')
+    def phone(self):
+        name = self.name_input()
         return self.book.find(name)
 
     @input_error
-    def write_note(self, user_input):
-        if user_input != "write note":
-            raise ValueError
-        
-        title = input('Please, input the title:\n')
-        text = input('Please, input the text. You can leave this field empty:\n')
-
+    def write_note(self):
+        title = input('Please, enter the title: ')
+        text = input('Please, enter the text. You can leave this field empty: ')
         return self.notes.add_note(title, text)
     
     @input_error
-    def remove_note(self, user_input):
-        note_to_remove = user_input.replace("remove note", '')
-
+    def remove_note(self):
+        note_to_remove = input('Please, enter the title of the note: ')
         return self.notes.delete_note(note_to_remove)
     
     @input_error
-    def edit_note(self, user_input):
-        note_to_edit = user_input.replace("edit note", '')
-        text = input('Please, input the new note text.\n')
+    def edit_note(self):
+        note_to_edit = input('Please, enter the title of the note: ')
+        text = input('Please, enter the new text for the note: ')
 
         return self.notes.edit_note(note_to_edit, text)
              
-    def exit(self, user_input):
+    def exit(self):
         if len(self.book.data) > 0:
             self.write_to_file(self.contacts_file, self.book)
 
@@ -297,38 +264,35 @@ class Bot:
         print('Good Bye')
         sys.exit()
 
-    def search_phone(self, user_input):
-        text = user_input.replace('search phone', '')
-        s_text = text.strip().lower()
+    def search_phone(self):
+        phone_to_search = self.phone_input()
         result = []
         for record in self.book.data.values():
-            if s_text in record.name.value.lower() + ' '.join([phone.value for phone in record.phones]):
+            if phone_to_search in record.name.value + ' '.join([phone.value for phone in record.phones]):
                 result.append(str(record))
         return result
     
     @input_error
-    def search_notes_by_tags(self, user_input):
-        tag_name = input('Please, input the tag name:\n')
-
+    def search_notes_by_tags(self):
+        tag_name = input('Please, enter the tag name: ')
         tag_id = self.notes.get_tag_id(tag_name)
         if tag_id == None:
             return f"There is no such tag {tag_name}"
 
         return self.notes.find_notes_by_tag(tag_id=tag_id)
     
-    
-    def folder_sort(self, user_input):
-        target_folder_path = user_input.replace('sort folder ', '')
+    def folder_sort(self):
+        target_folder_path = input('Please, enter the path to folder: ')
         if not os.path.exists(target_folder_path):
             return 'folder not found'
     
         return sort_folder(target_folder_path, display_analytics=True)
 
     @input_error
-    def birthday(self, user_input, days=None):
+    def birthday(self, days=None):
         birthday_man = str()
         if days == None:
-            days_depth = int(user_input.replace('birthday ', ''))
+            days_depth = int(input('Please, enter the depth in days: '))
         else:
             days_depth = days
         
@@ -347,39 +311,28 @@ class Bot:
         elif len(birthday_man) == 0:
             return f'\nNobody from your contacts celebrates birthday for the next {days_depth} days\n'
         elif days != None:
-            birthday_man = f'Following contacts celebrate birthday in the nearest {days_depth} days:\n'\
+            birthday_man = f"Contacts below celebrate birthday soon. Don't forget to prepare a gift and congrat them ;)\n"\
                 + '{:^15} {:^15}\n'.format('Name', 'Birthday') + birthday_man
             
         return birthday_man
 
     @input_error
-    def search_notes(self, user_input: str) -> str:
-        command_body = user_input.replace('search notes', '')
-        command_body = command_body.strip().lower()
-        
-        return self.notes.find_notes(command_body).get_notes()
+    def search_notes(self) -> str:
+        note_to_search = input('Please, enter the title of the note: ').strip().lower()
+        return self.notes.find_notes(note_to_search).get_notes()
 
     @input_error
-    def create_tag(self, user_input: str) -> str:
-        command_body = user_input.replace('create tag', '')
-        command_body = command_body.strip()
-
-        return self.notes.tags.add_tag(command_body)
+    def create_tag(self) -> str:
+        tag = input('Please, enter the title of the tag: ').strip()
+        return self.notes.tags.add_tag(tag)
     
     @input_error
-    def link_tag(self, user_input: str) -> str:
-        if user_input != "link tag":
-            raise ValueError
-        
-        note_title = input('Please, input the title of note you want to add:\n')
-        tag_name = input('Please, input the name of tag you want to add:\n')
-
+    def link_tag(self) -> str:
+        note_title = input('Please, input the title of note you want to add: ')
+        tag_name = input('Please, input the name of tag you want to add: ')
         return self.notes.add_tag_for_note(tag_name, note_title)
     
-    def show_notes(self, user_input: str) -> str:
-        if user_input != "show notes":
-            raise ValueError
-        
+    def show_notes(self) -> str:
         return self.notes.get_notes()
 
     def set_compliter(self):
@@ -392,19 +345,18 @@ class Bot:
 
     @input_error
     def get_handler(self, user_input):
-        for action in self.commands.keys():
-            if action == user_input.lower().split()[0]:
-                return self.commands[action]
+        user_command = user_input.lower().rstrip().lstrip()
+        return self.commands.get(user_command)
 
     def run(self):
         print('Hello!')
-        print(self.birthday(str(), 30))
+        print(self.birthday(30))
 
         while True:
-            user_input = prompt('>> ', completer=self.completer).lower()
+            user_input = prompt('>> ', completer=self.completer)
             handler = self.get_handler(user_input)
             if handler == None:
                 print('Unknown command! Please, enter command from the list below:\n')
                 handler = self.get_handler('help') 
-            result = handler(user_input)
+            result = handler()
             print(result or '')
