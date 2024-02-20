@@ -45,13 +45,18 @@ class Address(Field):
         return str(self.value)
 
 class Birthday(Field):
-    # реалізація класу
     def is_valid(self, value):
         try:
             datetime.strptime(value, '%d.%m.%Y')
             return True
         except ValueError:
             return False
+    
+    def __str__(self):
+        return str(self.value)
+    
+    def __repr__(self):
+        return str(self.value)
 
 
 class Email(Field):
@@ -86,8 +91,7 @@ class Record:
         else:
             self.email = 'Not set'
 
-        
-        if type(address) == str():
+        if type(address) == str:
             self.address = Address(address)
         elif type(address) == Address:
             self.address = address
@@ -128,9 +132,13 @@ class Record:
         email = Email(email)
         self.email = str(email)
 
-    def change_address(self, adderess):
-        adderess = Address(adderess)
-        self.address.value = str(adderess)
+    def change_address(self, address):
+        if type(address) != Address:
+            self.address = Address(address)
+        elif type(address) == Address:
+            self.address = address
+        else:
+            raise AttributeError("Unknown type of address in 'change_address'")
                 
     def find_phone(self, phone: str):
         for i in self.phones:
@@ -159,13 +167,6 @@ class Record:
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday}, email: {self.email}, address: {self.address}"
-
-        # info = [f"Contact name: {self.name.value}", f"phones: {'; '.join(p.value for p in self.phones)}"]
-        # if self.birthday:
-        #     info.append(f"birthday: {self.birthday.value}")
-        # if self.email:
-        #     info.append(f"email: {self.email.value}")
-        # return ', '.join(info)
     
     def __eq__(self, record):
         if type(record) != Record:
@@ -188,18 +189,24 @@ class AddressBook(UserDict):
 
     def delete(self, record):
         try:
-            print(record.name)
-            print(self.data[record.name.value])
             del self.data[record.name.value]
         except KeyError:
             print('Contact not found')
+        
+        return 'Contact was successfully deleted!'
 
     def iterator(self, n=1):
         records = list(self.data.values())
         for i in range(0, len(records), n):
             yield records[i: i+n]
 
+    def get_records(self):
+        records = '|{:^10}|{:^20}|{:^15}|{:^15}|{:^20}\n'.format("Name", "Phones", "Birthday", "Email", "Address")
+        for record in self.data.values():
+            records += '|{:^10}|{:^20}|{:^15}|{:^15}|{:^20}\n'.format(record.name.value,\
+                ', '.join(p.value for p in record.phones), str(record.birthday), str(record.email), str(record.address))
+        return records
+
     def __str__(self) -> str:
         return '\n'.join(str(r) for r in self.data.values())
     
-

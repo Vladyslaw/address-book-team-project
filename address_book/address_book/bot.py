@@ -115,20 +115,25 @@ class Bot:
     def phone_input(self, text_for_user=None):
         text = '\t' + (text_for_user if text_for_user != None else '') + 'Enter phone: '
         phone_input = input(text)
-        phone = Phone(phone_input)
-        while not phone.is_valid(phone.value):
-            print('\tInvalid phone number format! Phone must contain 10 digits.')
-            phone_input = input('\tEnter phone: ')
-        
+            
+        while True:
+            try:
+                phone = Phone(phone_input)
+                break
+            except ValueError:
+                print('\tInvalid phone number format! Phone must contain 10 digits.')
+                phone_input = input('\tEnter phone: ')
         return phone
     
     @input_error
     def birhtday_input(self):
         birthday_input = input('\tEnter date of birthday (DD.MM.YYYY) or pass: ')
         birthday = 'Not set'
-        if birthday_input not in ('pass', ''):
-            birthday = Birthday(birthday_input)
-            while not birthday.is_valid(birthday.value) and birthday_input not in ('pass', ''):
+        while birthday_input not in ('pass', ''):
+            try:
+                birthday = Birthday(birthday_input)
+                break
+            except ValueError:
                 print('\tIncorrect birthday format, try again with DD.MM.YYYY')
                 birthday_input = input('\tEnter date of birthday (DD.MM.YYYY) or pass: ')
         
@@ -138,9 +143,11 @@ class Bot:
     def email_input(self):
         email_input = input('\tEnter email or pass: ')
         email = 'Not set'
-        if email_input not in ('pass', ''):
-            email = Email(email_input)
-            while not email.is_valid(email.value) and email_input not in ('pass', ''):
+        while email_input not in ('pass', ''):
+            try:
+                email = Email(email_input)
+                break
+            except ValueError:
                 print('\tIncorrect email format, try again in format name@test.com')
                 email_input = input('\tEnter or pass: ')
         
@@ -170,7 +177,7 @@ class Bot:
         if not self.book.data:
             return 'You have no any contacts saved'
         
-        return self.book
+        return self.book.get_records()
     
     def help(self):
         commands_help = {
@@ -224,7 +231,7 @@ class Bot:
     def edit_address(self):
         record_to_change = self.get_record_by_name_input()
         address = self.address_input()
-        record_to_change.change_address(str(address))
+        record_to_change.change_address(address)
         self.book.add_record(record_to_change)
         return 'Contact updated!'
        
