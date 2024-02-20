@@ -1,11 +1,11 @@
 import sys
 import os
 import pickle
-from classes import AddressBook, Record, Phone, Birthday, Email, Address
-from notes import Notes
+from .classes import AddressBook, Record, Phone, Birthday, Email, Address
+from .notes import Notes
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
-from folder_sorter import sort_folder
+from .folder_sorter import sort_folder
 
 
 def input_birthday():
