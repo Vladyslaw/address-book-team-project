@@ -61,12 +61,33 @@ class Record:
     # реалізація класу
     def __init__(self, name, phone=None, birthday=None, email=None, address=None):
         self.name = Name(name)
-        self.phones = []
-        if phone:
+        self.phones = list()
+        if type(phone) == str():
             self.phones.append(Phone(phone))
-        self.birthday = Birthday(birthday) if birthday else 'Not set'
-        self.email = Email(email) if email else 'Not set'
-        self.address = Address(address) if address else 'Not set'
+        elif type(phone) == Phone:
+            self.phones.append(phone)
+        
+        if type(birthday) == str():
+            self.birthday = Birthday(birthday)
+        elif type(birthday) == Birthday:
+            self.birthday = birthday
+        else:
+            self.birthday = 'Not set'
+        
+        if type(email) == str():
+            self.email = Email(email)
+        elif type(email) == Email:
+            self.email = email
+        else:
+            self.email = 'Not set'
+
+        
+        if type(address) == str():
+            self.address = Address(address)
+        elif type(address) == Address:
+            self.address = address
+        else:
+            self.address = 'Not set'
     
     def add_phone(self, phone: str):
         phone = Phone(phone)
@@ -116,7 +137,13 @@ class Record:
             days = birthday_day - today
             return days.days
         return None
-        
+    
+    def get_phones(self):
+        if len(self.phones) > 0:
+            return ', '.join([phone.value for phone in self.phones])
+        else:
+            return 'Contact has no phones'
+
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday}, email: {self.email}, address: {self.address}"
 
@@ -139,6 +166,7 @@ class AddressBook(UserDict):
         for record in self.data.values():
             if name in record.name.value:
                 return record
+        return f"There is no contacts with name '{name}'"
 
     def delete(self, record):
         try:

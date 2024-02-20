@@ -37,12 +37,12 @@ class Bot:
             'hello': self.greeting,
             'add': self.add,
             'phone': self.phone,
-            'show-all': self.show_all,
-            'good-bye': self.exit,
+            'show all': self.show_all,
+            'good bye': self.exit,
             'close': self.exit,
             'exit': self.exit,
-            'sort-folder': self.folder_sort,
-            'search-phone': self.search_phone,
+            'sort folder': self.folder_sort,
+            'search phone': self.search_phone,
             'delete': self.delete,
             'help': self.help,
             'birthday': self.birthday,
@@ -54,10 +54,10 @@ class Bot:
             'link tag': self.link_tag,
             'show notes': self.show_notes,
             'find notes by tags': self.search_notes_by_tags,
-            'edit-phone': self.edit_phone,
-            'edit-birthday': self.edit_birthday,
-            'edit-email': self.edit_email,
-            'edit-address': self.edit_address
+            'edit phone': self.edit_phone,
+            'edit birthday': self.edit_birthday,
+            'edit email': self.edit_email,
+            'edit address': self.edit_address
             }
         
         self.completer = self.set_compliter()
@@ -115,7 +115,7 @@ class Bot:
     def phone_input(self):
         phone_input = input('\tEnter phone: ')
         phone = Phone(phone_input)
-        while not phone.is_valid():
+        while not phone.is_valid(phone.value):
             print('\tInvalid phone number format! Phone must contain 10 digits.')
             phone_input = input('\tEnter phone: ')
         
@@ -127,7 +127,7 @@ class Bot:
         birthday = 'Not set'
         if birthday_input not in ('pass', ''):
             birthday = Birthday(birthday_input)
-            while not birthday.is_valid() and birthday_input not in ('pass', ''):
+            while not birthday.is_valid(birthday.value) and birthday_input not in ('pass', ''):
                 print('\tIncorrect birthday format, try again with DD.MM.YYYY')
                 birthday_input = input('\tEnter date of birthday (DD.MM.YYYY) or pass: ')
         
@@ -139,7 +139,7 @@ class Bot:
         email = 'Not set'
         if email_input not in ('pass', ''):
             email = Email(email_input)
-            while not email.is_valid() and email_input not in ('pass', ''):
+            while not email.is_valid(email.value) and email_input not in ('pass', ''):
                 print('\tIncorrect email format, try again in format name@test.com')
                 email_input = input('\tEnter or pass: ')
         
@@ -234,7 +234,7 @@ class Bot:
     @input_error
     def phone(self):
         name = self.name_input()
-        return self.book.find(name)
+        return '\t' + self.book.find(name).get_phones()
 
     @input_error
     def write_note(self):
