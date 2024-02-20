@@ -78,13 +78,25 @@ class Record:
             if i.value == phone:
                 self.phones.remove(i)
 
-    def edit_phone(self, phone: str, new_phone):
+    def change_phone(self, phone: str, new_phone):
         new_phone = Phone(new_phone)
         for i in self.phones:
             if i.value == phone:
                 i.value = new_phone.value
                 return          
         raise ValueError
+    
+    def change_birthday(self, birthday):
+        birthday = Birthday(birthday)
+        self.birthday = str(birthday)
+    
+    def change_email(self, email):
+        email = Email(email)
+        self.email = str(email)
+
+    def change_address(self, adderess):
+        adderess = Address(adderess)
+        self.address.value = str(adderess)
                 
     def find_phone(self, phone: str):
         for i in self.phones:
