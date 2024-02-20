@@ -94,7 +94,7 @@ class Bot:
             'create tag': self.create_tag,
             'link tag': self.link_tag,
             'show notes': self.show_notes,
-            'find notes by tags': self.search_notes_by_tags
+            'find notes by tags': self.search_notes_by_tags,
             'edit-phone': self.edit_phone,
             'edit-birthday': self.edit_birthday,
             'edit-email': self.edit_email,
