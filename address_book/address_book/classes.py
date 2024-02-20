@@ -153,6 +153,11 @@ class Record:
         # if self.email:
         #     info.append(f"email: {self.email.value}")
         # return ', '.join(info)
+    
+    def __eq__(self, record):
+        if type(record) != Record:
+            return False
+        return self.name == record.name
 
 class AddressBook(UserDict):
     # реалізація класу
@@ -170,7 +175,9 @@ class AddressBook(UserDict):
 
     def delete(self, record):
         try:
-            del self.data[record]
+            print(record.name)
+            print(self.data[record.name.value])
+            del self.data[record.name.value]
         except KeyError:
             print('Contact not found')
 

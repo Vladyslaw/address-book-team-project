@@ -99,11 +99,11 @@ class Bot:
     @input_error
     def get_record_by_name_input(self):
         name = input('\tEnter contact name: ').rstrip().lstrip()
-        record_to_change = get_record(name)
+        record_to_change = self.get_record(name)
         while record_to_change == None:
             print(f'There is no such contact with name {name}')
             name = input('\tEnter contact name: ').rstrip().lstrip()
-            record_to_change = get_record(name)
+            record_to_change = self.get_record(name)
         
         return record_to_change
     
